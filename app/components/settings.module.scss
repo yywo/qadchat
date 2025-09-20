@@ -263,7 +263,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 30px;
   width: 100%;
   min-height: 40px; // 确保有足够的最小高度
 }
@@ -292,7 +292,7 @@
   font-weight: 500;
   white-space: nowrap;
   line-height: 1.2;
-  gap: 6px;
+  max-width: 100%;
   // 移除文本截断，让标签自然显示完整内容
   // overflow: hidden;
   // text-overflow: ellipsis;
@@ -592,5 +592,56 @@
 
   &:hover {
     background: var(--primary-dark);
+  }
+}
+
+.long-text-wrap {
+  word-break: break-all;
+}
+
+.select-default-model {
+  width: 60%;
+  select {
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-all;
+  }
+}
+
+.model-name {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 600px) {
+  .model-name {
+    min-width: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .model-name-inner {
+    display: block;
+    white-space: nowrap;
+    overflow-x: auto;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-right: 10px;
+  }
+
+  .model-name::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 10px;
+    background: linear-gradient(to left, var(--primary), transparent);
+    pointer-events: none;
   }
 }

@@ -67,6 +67,7 @@ import { getModelProvider } from "../utils/model";
 import { useAccessStore } from "../store/access";
 import { groupBy } from "lodash-es";
 import { getModelCompressThreshold } from "../config/model-context-tokens";
+import { useEnabledModels } from "../utils/hooks";
 
 // drag and drop helper function
 function reorder<T>(list: T[], startIndex: number, endIndex: number): T[] {
@@ -101,11 +102,11 @@ export function MaskConfig(props: {
   isSessionConfig?: boolean; // 新增参数，标识是否为会话配置
 }) {
   const [showPicker, setShowPicker] = useState(false);
-  const allModels = useAllModels();
+  //const allModels = useAllModels();
   const accessStore = useAccessStore();
 
   // 只显示已启用服务商的已启用模型
-  const availableModels = useMemo(() => {
+  /*  const availableModels = useMemo(() => {
     const enabledProviders = accessStore.enabledProviders || {};
     const enabledModels = accessStore.enabledModels || {};
 
@@ -144,7 +145,9 @@ export function MaskConfig(props: {
     accessStore.enabledProviders,
     accessStore.enabledModels,
     accessStore.customProviders,
-  ]);
+  ]);*/
+  // 临时解决方案
+  const availableModels = useEnabledModels();
 
   const groupModels = groupBy(availableModels, (model) => {
     const isCustomProvider = model.provider?.id?.startsWith("custom_");
@@ -339,8 +342,10 @@ export function MaskConfig(props: {
               subTitle={Locale.Mask.DefaultModelDesc}
             >
               <Select
+                className={styles["select-default-model"]}
                 aria-label={Locale.Mask.DefaultModel}
                 value={props.mask.defaultModel || ""}
+                align="left"
                 onChange={(e) => {
                   const value = e.currentTarget.value;
                   props.updateMask((mask) => {
@@ -729,7 +734,7 @@ export function MaskPage() {
                   </div>
                   <div className={styles["mask-title"]}>
                     <div className={styles["mask-name"]}>{m.name}</div>
-                    <div className={clsx(styles["mask-info"], "one-line")}>
+                    <div className={styles["mask-info"]}>
                       {`${Locale.Mask.Item.Info(m.context.length)} / ${
                         ALL_LANG_OPTIONS[m.lang]
                       } / ${getMaskEffectiveModel(

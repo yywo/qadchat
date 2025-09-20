@@ -647,15 +647,24 @@ export const useChatStore = createPersistStore(
             // 立即刷新任何待处理的更新
             streamOptimizer.flushUpdates();
 
-            botMessage.streaming = false;
-            if (message) {
-              botMessage.content = message;
-              botMessage.date = new Date().toLocaleString();
+            get().updateTargetSession(session, (session) => {
+              const messageIndex = session.messages.findIndex(
+                (m) => m.id === botMessage.id,
+              );
 
-              // 不在新消息时初始化版本管理，只在重试时才初始化
+              if (messageIndex > -1) {
+                const finalBotMessage = {
+                  ...session.messages[messageIndex],
+                  streaming: false,
+                  content: message,
+                  date: new Date().toLocaleString(),
+                };
 
-              get().onNewMessage(botMessage, session);
-            }
+                session.messages[messageIndex] = finalBotMessage;
+                get().onNewMessage(finalBotMessage, session);
+              }
+            });
+
             ChatControllerPool.remove(session.id, botMessage.id);
           },
           onBeforeTool(tool: ChatMessageTool) {
@@ -1222,33 +1231,9 @@ export const useChatStore = createPersistStore(
           currentMessage.currentVersionIndex = currentMessage.versions.length;
         });
 
-        // 获取用户消息内容
-        const textContent = getMessageTextContent(userMessage);
-        const images = getMessageImages(userMessage);
-
-        // 准备消息内容
-        let mContent: string | MultimodalContent[] = fillTemplateWith(
-          textContent,
-          session.mask.modelConfig,
-        );
-        if (images && images.length > 0) {
-          mContent = [
-            ...(textContent
-              ? [{ type: "text" as const, text: textContent }]
-              : []),
-            ...images.map((url) => ({
-              type: "image_url" as const,
-              image_url: { url },
-            })),
-          ];
-        }
-
         // 获取历史消息（不包括当前正在重试的 bot 消息）
         const recentMessages = await get().getMessagesWithMemory();
-        const sendMessages = recentMessages.concat({
-          ...userMessage,
-          content: mContent,
-        });
+        const sendMessages = recentMessages.splice(0, messageIndex);
 
         const modelConfig = session.mask.modelConfig;
         const api: ClientApi = getClientApi(modelConfig.providerName);

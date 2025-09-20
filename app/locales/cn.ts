@@ -501,7 +501,7 @@ const cn = {
         },
 
         Endpoint: {
-          Title: "终端地址",
+          Title: "接口地址",
           SubTitle: "示例：",
         },
 

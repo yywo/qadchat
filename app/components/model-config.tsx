@@ -106,6 +106,7 @@ export function ModelConfigList(props: {
       {props.showModelSelector && (
         <ListItem title={Locale.Settings.Model}>
           <Select
+            className={styles["select-default-model"]}
             aria-label={Locale.Settings.Model}
             value={value}
             align="left"
@@ -375,6 +376,7 @@ export function ModelConfigList(props: {
           className={styles["select-compress-model"]}
           aria-label={Locale.Settings.CompressModel.Title}
           value={compressModelValue}
+          align="left"
           onChange={(e) => {
             const value = e.currentTarget.value;
             if (value === "") {

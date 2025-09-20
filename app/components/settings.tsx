@@ -94,6 +94,7 @@ import { RealtimeConfigList } from "./realtime-chat/realtime-config";
 import { ModelManager } from "./model-manager";
 import { useAllModels } from "../utils/hooks";
 import { getModelProvider } from "../utils/model";
+import { useEnabledModels } from "../utils/hooks";
 
 // 设置页面的分类枚举
 enum SettingsTab {
@@ -926,7 +927,11 @@ export function Settings() {
     <>
       <ListItem
         title={Locale.Settings.Access.OpenAI.Endpoint.Title}
-        subTitle={Locale.Settings.Access.OpenAI.Endpoint.SubTitle}
+        subTitle={
+          <span className={styles["long-text-wrap"]}>
+            {Locale.Settings.Access.OpenAI.Endpoint.SubTitle}
+          </span>
+        }
       >
         <input
           aria-label={Locale.Settings.Access.OpenAI.Endpoint.Title}
@@ -964,7 +969,10 @@ export function Settings() {
       <ListItem
         title={Locale.Settings.Access.Azure.Endpoint.Title}
         subTitle={
-          Locale.Settings.Access.Azure.Endpoint.SubTitle + Azure.ExampleEndpoint
+          <span className={styles["long-text-wrap"]}>
+            {Locale.Settings.Access.Azure.Endpoint.SubTitle +
+              Azure.ExampleEndpoint}
+          </span>
         }
       >
         <input
@@ -1019,8 +1027,10 @@ export function Settings() {
       <ListItem
         title={Locale.Settings.Access.Google.Endpoint.Title}
         subTitle={
-          Locale.Settings.Access.Google.Endpoint.SubTitle +
-          Google.ExampleEndpoint
+          <span className={styles["long-text-wrap"]}>
+            {Locale.Settings.Access.Google.Endpoint.SubTitle +
+              Google.ExampleEndpoint}
+          </span>
         }
       >
         <input
@@ -1097,8 +1107,10 @@ export function Settings() {
       <ListItem
         title={Locale.Settings.Access.Anthropic.Endpoint.Title}
         subTitle={
-          Locale.Settings.Access.Anthropic.Endpoint.SubTitle +
-          Anthropic.ExampleEndpoint
+          <span className={styles["long-text-wrap"]}>
+            {Locale.Settings.Access.Anthropic.Endpoint.SubTitle +
+              Anthropic.ExampleEndpoint}
+          </span>
         }
       >
         <input
@@ -1153,8 +1165,10 @@ export function Settings() {
       <ListItem
         title={Locale.Settings.Access.ByteDance.Endpoint.Title}
         subTitle={
-          Locale.Settings.Access.ByteDance.Endpoint.SubTitle +
-          ByteDance.ExampleEndpoint
+          <span className={styles["long-text-wrap"]}>
+            {Locale.Settings.Access.ByteDance.Endpoint.SubTitle +
+              ByteDance.ExampleEndpoint}
+          </span>
         }
       >
         <input
@@ -1193,8 +1207,10 @@ export function Settings() {
       <ListItem
         title={Locale.Settings.Access.Alibaba.Endpoint.Title}
         subTitle={
-          Locale.Settings.Access.Alibaba.Endpoint.SubTitle +
-          Alibaba.ExampleEndpoint
+          <span className={styles["long-text-wrap"]}>
+            {Locale.Settings.Access.Alibaba.Endpoint.SubTitle +
+              Alibaba.ExampleEndpoint}
+          </span>
         }
       >
         <input
@@ -1233,8 +1249,10 @@ export function Settings() {
       <ListItem
         title={Locale.Settings.Access.Moonshot.Endpoint.Title}
         subTitle={
-          Locale.Settings.Access.Moonshot.Endpoint.SubTitle +
-          Moonshot.ExampleEndpoint
+          <span className={styles["long-text-wrap"]}>
+            {Locale.Settings.Access.Moonshot.Endpoint.SubTitle +
+              Moonshot.ExampleEndpoint}
+          </span>
         }
       >
         <input
@@ -1273,8 +1291,10 @@ export function Settings() {
       <ListItem
         title={Locale.Settings.Access.DeepSeek.Endpoint.Title}
         subTitle={
-          Locale.Settings.Access.DeepSeek.Endpoint.SubTitle +
-          DeepSeek.ExampleEndpoint
+          <span className={styles["long-text-wrap"]}>
+            {Locale.Settings.Access.DeepSeek.Endpoint.SubTitle +
+              DeepSeek.ExampleEndpoint}
+          </span>
         }
       >
         <input
@@ -1313,7 +1333,9 @@ export function Settings() {
       <ListItem
         title={Locale.Settings.Access.XAI.Endpoint.Title}
         subTitle={
-          Locale.Settings.Access.XAI.Endpoint.SubTitle + XAI.ExampleEndpoint
+          <span className={styles["long-text-wrap"]}>
+            {Locale.Settings.Access.XAI.Endpoint.SubTitle + XAI.ExampleEndpoint}
+          </span>
         }
       >
         <input
@@ -1352,8 +1374,10 @@ export function Settings() {
       <ListItem
         title={Locale.Settings.Access.SiliconFlow.Endpoint.Title}
         subTitle={
-          Locale.Settings.Access.SiliconFlow.Endpoint.SubTitle +
-          SiliconFlow.ExampleEndpoint
+          <span className={styles["long-text-wrap"]}>
+            {Locale.Settings.Access.SiliconFlow.Endpoint.SubTitle +
+              SiliconFlow.ExampleEndpoint}
+          </span>
         }
       >
         <input
@@ -1662,9 +1686,9 @@ export function Settings() {
             <div
               style={{
                 display: "flex",
+                justifyContent: "flex-end",
                 alignItems: "center",
                 gap: "10px",
-                width: "100%",
               }}
             >
               <PasswordInput
@@ -1682,7 +1706,6 @@ export function Settings() {
                 style={{
                   fontSize: "12px",
                   color: accessStore.accessCode ? "#4CAF50" : "#FF9800",
-                  whiteSpace: "nowrap",
                 }}
               >
                 {accessStore.accessCode
@@ -2118,7 +2141,16 @@ export function Settings() {
                                     key={modelName}
                                     className={styles["model-tag"]}
                                   >
-                                    {modelName}
+                                    <span
+                                      className={styles["model-name"]}
+                                      title={modelName}
+                                    >
+                                      <span
+                                        className={styles["model-name-inner"]}
+                                      >
+                                        {modelName}
+                                      </span>
+                                    </span>
                                     <ModelCapabilityIcons
                                       capabilities={getModelCapabilitiesWithCustomConfig(
                                         modelName,
@@ -2175,10 +2207,10 @@ export function Settings() {
   );
 
   // 准备分组模型数据 - 基于启用的提供商和模型
-  const allModels = useAllModels();
+  //const allModels = useAllModels();
 
   // 只显示已启用服务商的已启用模型
-  const availableModels = useMemo(() => {
+  /*  const availableModels = useMemo(() => {
     const enabledProviders = accessStore.enabledProviders || {};
     const enabledModels = accessStore.enabledModels || {};
 
@@ -2217,7 +2249,9 @@ export function Settings() {
     accessStore.enabledProviders,
     accessStore.enabledModels,
     accessStore.customProviders,
-  ]);
+  ]);*/
+  // 临时解决方案
+  const availableModels = useEnabledModels();
 
   const groupModels = groupBy(availableModels, (model) => {
     const isCustomProvider = model.provider?.id?.startsWith("custom_");
@@ -2265,6 +2299,7 @@ export function Settings() {
       <List>
         <ListItem title={Locale.Settings.Model}>
           <Select
+            className={styles["select-default-model"]}
             aria-label={Locale.Settings.Model}
             value={currentModelValue}
             align="left"

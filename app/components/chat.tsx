@@ -1326,6 +1326,390 @@ export function ChatActions(props: {
     );
   }, 100); // 100ms 防抖
 
+  const leftActions = (
+    <>
+      {couldStop && (
+        <ChatAction
+          onClick={stopAll}
+          text={Locale.Chat.InputActions.Stop}
+          icon={<StopIcon />}
+        />
+      )}
+      {!props.hitBottom && (
+        <ChatAction
+          onClick={props.scrollToBottom}
+          text={Locale.Chat.InputActions.ToBottom}
+          icon={<BottomIcon />}
+        />
+      )}
+
+      {showUploadImage && (
+        <ChatAction
+          onClick={props.uploadImage}
+          text={Locale.Chat.InputActions.UploadImage}
+          icon={props.uploading ? <LoadingButtonIcon /> : <ImageIcon />}
+        />
+      )}
+      <ChatAction
+        onClick={nextTheme}
+        text={Locale.Chat.InputActions.Theme[theme]}
+        icon={
+          <>
+            {theme === Theme.Auto ? (
+              <AutoIcon />
+            ) : theme === Theme.Light ? (
+              <LightIcon />
+            ) : theme === Theme.Dark ? (
+              <DarkIcon />
+            ) : null}
+          </>
+        }
+      />
+
+      <ChatAction
+        onClick={props.showPromptHints}
+        text={Locale.Chat.InputActions.Prompt}
+        icon={<PromptIcon />}
+      />
+
+      <ChatAction
+        text={Locale.Chat.InputActions.Clear}
+        icon={<BreakIcon />}
+        onClick={() => {
+          chatStore.updateTargetSession(session, (session) => {
+            if (session.clearContextIndex === session.messages.length) {
+              session.clearContextIndex = undefined;
+            } else {
+              session.clearContextIndex = session.messages.length;
+              session.memoryPrompt = ""; // will clear memory
+            }
+          });
+        }}
+      />
+
+      {supportsCustomSize(currentModel) && (
+        <ChatAction
+          onClick={() => setShowSizeSelector(true)}
+          text={currentSize}
+          icon={<SizeIcon />}
+        />
+      )}
+
+      {showSizeSelector && (
+        <Selector
+          defaultSelectedValue={currentSize}
+          items={modelSizes.map((m) => ({
+            title: m,
+            value: m,
+          }))}
+          onClose={() => setShowSizeSelector(false)}
+          onSelection={(s) => {
+            if (s.length === 0) return;
+            const size = s[0];
+            chatStore.updateTargetSession(session, (session) => {
+              session.mask.modelConfig.size = size;
+            });
+            showToast(size);
+          }}
+        />
+      )}
+
+      {isDalle3(currentModel) && (
+        <ChatAction
+          onClick={() => setShowQualitySelector(true)}
+          text={currentQuality}
+          icon={<QualityIcon />}
+        />
+      )}
+
+      {showQualitySelector && (
+        <Selector
+          defaultSelectedValue={currentQuality}
+          items={dalle3Qualitys.map((m) => ({
+            title: m,
+            value: m,
+          }))}
+          onClose={() => setShowQualitySelector(false)}
+          onSelection={(q) => {
+            if (q.length === 0) return;
+            const quality = q[0];
+            chatStore.updateTargetSession(session, (session) => {
+              session.mask.modelConfig.quality = quality;
+            });
+            showToast(quality);
+          }}
+        />
+      )}
+
+      {isDalle3(currentModel) && (
+        <ChatAction
+          onClick={() => setShowStyleSelector(true)}
+          text={currentStyle}
+          icon={<StyleIcon />}
+        />
+      )}
+
+      {showStyleSelector && (
+        <Selector
+          defaultSelectedValue={currentStyle}
+          items={dalle3Styles.map((m) => ({
+            title: m,
+            value: m,
+          }))}
+          onClose={() => setShowStyleSelector(false)}
+          onSelection={(s) => {
+            if (s.length === 0) return;
+            const style = s[0];
+            chatStore.updateTargetSession(session, (session) => {
+              session.mask.modelConfig.style = style;
+            });
+            showToast(style);
+          }}
+        />
+      )}
+
+      {!isMobileScreen && (
+        <ChatAction
+          onClick={() =>
+            props.setShowShortcutKeyPanel(!props.showShortcutKeyPanel)
+          }
+          text={Locale.Chat.ShortcutKey.Title}
+          icon={<ShortcutkeyIcon />}
+          dataAttribute="data-shortcut-button"
+        />
+      )}
+      {(() => {
+        const currentModel = session.mask.modelConfig.model;
+        const modelCapabilities =
+          getModelCapabilitiesWithCustomConfig(currentModel);
+        return (
+          modelCapabilities.reasoning &&
+          modelCapabilities.thinkingType && (
+            <ChatAction
+              onClick={() =>
+                props.setShowThinkingPanel(!props.showThinkingPanel)
+              }
+              text={Locale.Chat.Thinking.Title}
+              icon={<BrainIcon />}
+              dataAttribute="data-thinking-button"
+            />
+          )
+        );
+      })()}
+      {(() => {
+        const currentModel = session.mask.modelConfig.model;
+        // 使用更精确的搜索模型检测
+        const supportsSearch = isWebSearchModel(currentModel);
+
+        if (!supportsSearch) return null;
+
+        const searchEnabled = session.searchEnabled ?? false;
+
+        return (
+          <ChatAction
+            onClick={() => {
+              const newSearchEnabled = !searchEnabled;
+              chatStore.updateTargetSession(session, (session) => {
+                session.searchEnabled = newSearchEnabled;
+              });
+
+              // 显示状态切换提醒
+              showToast(
+                newSearchEnabled
+                  ? Locale.Chat.InputActions.SearchEnabledToast
+                  : Locale.Chat.InputActions.SearchDisabledToast,
+              );
+            }}
+            text={
+              searchEnabled
+                ? Locale.Chat.InputActions.SearchOn
+                : Locale.Chat.InputActions.SearchOff
+            }
+            icon={<SearchIcon />}
+            dataAttribute="data-search-button"
+          />
+        );
+      })()}
+      {!isMobileScreen && (
+        <MCPAction
+          onTogglePanel={() => props.setShowMcpPanel(!props.showMcpPanel)}
+        />
+      )}
+      <MultiModelAction onToggle={() => props.toggleMultiModelMode()} />
+    </>
+  );
+  const rightActions = (
+    <>
+      {config.realtimeConfig.enable && (
+        <ChatAction
+          onClick={() => props.setShowChatSidePanel(true)}
+          text={"Realtime Chat"}
+          icon={<HeadphoneIcon />}
+        />
+      )}
+
+      {/* Token计数器和模型选择器 - 固定在右侧 */}
+      <div className={styles["model-selector-container"]}>
+        <TokenCounter
+          session={session}
+          currentModel={currentModel}
+          userInput={props.userInput}
+        />
+        <button
+          className={styles["model-selector-button"]}
+          onClick={() => props.setShowModelSelector(true)}
+        >
+          {session.multiModelMode?.enabled &&
+          session.multiModelMode.selectedModels.length > 1 ? (
+            <>
+              <div className={styles["model-icon"]}>
+                <BrainIcon />
+              </div>
+              <span className={styles["model-name"]}>
+                {session.multiModelMode.selectedModels
+                  .map((modelKey) => {
+                    const [modelName] = modelKey.split("@");
+                    return modelName;
+                  })
+                  .join(" / ")}
+              </span>
+            </>
+          ) : (
+            <>
+              <div className={styles["model-icon"]}>
+                <ProviderIcon
+                  provider={currentProviderName}
+                  size={16}
+                  modelName={currentModel}
+                />
+              </div>
+              <span className={styles["model-name"]}>{currentModelName}</span>
+            </>
+          )}
+        </button>
+
+        {props.showModelSelector && !session.multiModelMode?.enabled && (
+          <ModelSelectorModal
+            defaultSelectedValue={`${currentModel}@${currentProviderName}`}
+            groups={modelGroups}
+            searchPlaceholder={Locale.Chat.UI.SearchModels}
+            onClose={() => props.setShowModelSelector(false)}
+            onSelection={(selectedValue) => {
+              const [model, providerId] = getModelProvider(selectedValue);
+              chatStore.updateTargetSession(session, (session) => {
+                session.mask.modelConfig.model = model as ModelType;
+                session.mask.modelConfig.providerName = normalizeProviderName(
+                  providerId!,
+                );
+                session.mask.syncGlobalConfig = false;
+
+                // 检查新模型是否支持thinking功能，如果支持且thinkingBudget未设置，则设置默认值
+                const modelCapabilities = getModelCapabilitiesWithCustomConfig(
+                  session.mask.modelConfig.model,
+                );
+                if (
+                  modelCapabilities.reasoning &&
+                  modelCapabilities.thinkingType &&
+                  session.mask.modelConfig.thinkingBudget === undefined
+                ) {
+                  session.mask.modelConfig.thinkingBudget = -1; // 默认为动态思考
+                }
+
+                // 根据新模型自动更新压缩阈值
+                const autoThreshold = getModelCompressThreshold(model);
+                session.mask.modelConfig.compressMessageLengthThreshold =
+                  autoThreshold;
+              });
+
+              const selectedModel = models.find(
+                (m) => m.name == model && m?.provider?.id == providerId,
+              );
+
+              if (providerId == "ByteDance") {
+                showToast(selectedModel?.displayName ?? "");
+              } else {
+                showToast(selectedModel?.displayName || model);
+              }
+            }}
+          />
+        )}
+
+        {props.showModelSelector && session.multiModelMode?.enabled && (
+          <MultiModelSelectorModal
+            groups={modelGroups}
+            defaultSelectedValues={session.multiModelMode?.selectedModels || []}
+            searchPlaceholder={Locale.Chat.UI.SearchModels}
+            onClose={() => props.setShowModelSelector(false)}
+            onSelection={(selectedValues) => {
+              // 确保至少选择了两个模型
+              if (selectedValues.length < 2) {
+                showToast(Locale.Chat.MultiModel.MinimumModelsError);
+                return;
+              }
+
+              chatStore.updateTargetSession(session, (session) => {
+                if (!session.multiModelMode) {
+                  session.multiModelMode = {
+                    enabled: true,
+                    selectedModels: [],
+                    modelMessages: {},
+                    modelStats: {},
+                    modelMemoryPrompts: {},
+                    modelSummarizeIndexes: {},
+                  };
+                }
+
+                session.multiModelMode.selectedModels = selectedValues;
+                session.multiModelMode.enabled = true; // 确保启用多模型模式
+
+                // 初始化新选中模型的数据结构
+                selectedValues.forEach((modelKey) => {
+                  if (!session.multiModelMode!.modelMessages[modelKey]) {
+                    session.multiModelMode!.modelMessages[modelKey] = [];
+                  }
+                  if (!session.multiModelMode!.modelStats[modelKey]) {
+                    session.multiModelMode!.modelStats[modelKey] = {
+                      tokenCount: 0,
+                      wordCount: 0,
+                      charCount: 0,
+                    };
+                  }
+                  if (!session.multiModelMode!.modelMemoryPrompts[modelKey]) {
+                    session.multiModelMode!.modelMemoryPrompts[modelKey] = "";
+                  }
+                  if (
+                    !session.multiModelMode!.modelSummarizeIndexes[modelKey]
+                  ) {
+                    session.multiModelMode!.modelSummarizeIndexes[modelKey] = 0;
+                  }
+                });
+
+                // 清理不再选中的模型数据
+                const currentKeys = Object.keys(
+                  session.multiModelMode.modelMessages,
+                );
+                currentKeys.forEach((key) => {
+                  if (!selectedValues.includes(key)) {
+                    delete session.multiModelMode!.modelMessages[key];
+                    delete session.multiModelMode!.modelStats[key];
+                    delete session.multiModelMode!.modelMemoryPrompts[key];
+                    delete session.multiModelMode!.modelSummarizeIndexes[key];
+                  }
+                });
+              });
+
+              showToast(
+                Locale.Chat.MultiModel.ModelsSelectedToast(
+                  selectedValues.length,
+                ),
+              );
+            }}
+          />
+        )}
+      </div>
+    </>
+  );
+
   useEffect(() => {
     if (modelAvailability.nextModel) {
       updateSessionModel(modelAvailability.nextModel);
@@ -1334,394 +1718,19 @@ export function ChatActions(props: {
 
   return (
     <div className={styles["chat-input-actions"]}>
-      <>
-        {couldStop && (
-          <ChatAction
-            onClick={stopAll}
-            text={Locale.Chat.InputActions.Stop}
-            icon={<StopIcon />}
-          />
-        )}
-        {!props.hitBottom && (
-          <ChatAction
-            onClick={props.scrollToBottom}
-            text={Locale.Chat.InputActions.ToBottom}
-            icon={<BottomIcon />}
-          />
-        )}
-
-        {showUploadImage && (
-          <ChatAction
-            onClick={props.uploadImage}
-            text={Locale.Chat.InputActions.UploadImage}
-            icon={props.uploading ? <LoadingButtonIcon /> : <ImageIcon />}
-          />
-        )}
-        <ChatAction
-          onClick={nextTheme}
-          text={Locale.Chat.InputActions.Theme[theme]}
-          icon={
-            <>
-              {theme === Theme.Auto ? (
-                <AutoIcon />
-              ) : theme === Theme.Light ? (
-                <LightIcon />
-              ) : theme === Theme.Dark ? (
-                <DarkIcon />
-              ) : null}
-            </>
-          }
-        />
-
-        <ChatAction
-          onClick={props.showPromptHints}
-          text={Locale.Chat.InputActions.Prompt}
-          icon={<PromptIcon />}
-        />
-
-        <ChatAction
-          text={Locale.Chat.InputActions.Clear}
-          icon={<BreakIcon />}
-          onClick={() => {
-            chatStore.updateTargetSession(session, (session) => {
-              if (session.clearContextIndex === session.messages.length) {
-                session.clearContextIndex = undefined;
-              } else {
-                session.clearContextIndex = session.messages.length;
-                session.memoryPrompt = ""; // will clear memory
-              }
-            });
-          }}
-        />
-
-        {supportsCustomSize(currentModel) && (
-          <ChatAction
-            onClick={() => setShowSizeSelector(true)}
-            text={currentSize}
-            icon={<SizeIcon />}
-          />
-        )}
-
-        {showSizeSelector && (
-          <Selector
-            defaultSelectedValue={currentSize}
-            items={modelSizes.map((m) => ({
-              title: m,
-              value: m,
-            }))}
-            onClose={() => setShowSizeSelector(false)}
-            onSelection={(s) => {
-              if (s.length === 0) return;
-              const size = s[0];
-              chatStore.updateTargetSession(session, (session) => {
-                session.mask.modelConfig.size = size;
-              });
-              showToast(size);
-            }}
-          />
-        )}
-
-        {isDalle3(currentModel) && (
-          <ChatAction
-            onClick={() => setShowQualitySelector(true)}
-            text={currentQuality}
-            icon={<QualityIcon />}
-          />
-        )}
-
-        {showQualitySelector && (
-          <Selector
-            defaultSelectedValue={currentQuality}
-            items={dalle3Qualitys.map((m) => ({
-              title: m,
-              value: m,
-            }))}
-            onClose={() => setShowQualitySelector(false)}
-            onSelection={(q) => {
-              if (q.length === 0) return;
-              const quality = q[0];
-              chatStore.updateTargetSession(session, (session) => {
-                session.mask.modelConfig.quality = quality;
-              });
-              showToast(quality);
-            }}
-          />
-        )}
-
-        {isDalle3(currentModel) && (
-          <ChatAction
-            onClick={() => setShowStyleSelector(true)}
-            text={currentStyle}
-            icon={<StyleIcon />}
-          />
-        )}
-
-        {showStyleSelector && (
-          <Selector
-            defaultSelectedValue={currentStyle}
-            items={dalle3Styles.map((m) => ({
-              title: m,
-              value: m,
-            }))}
-            onClose={() => setShowStyleSelector(false)}
-            onSelection={(s) => {
-              if (s.length === 0) return;
-              const style = s[0];
-              chatStore.updateTargetSession(session, (session) => {
-                session.mask.modelConfig.style = style;
-              });
-              showToast(style);
-            }}
-          />
-        )}
-
-        {!isMobileScreen && (
-          <ChatAction
-            onClick={() =>
-              props.setShowShortcutKeyPanel(!props.showShortcutKeyPanel)
-            }
-            text={Locale.Chat.ShortcutKey.Title}
-            icon={<ShortcutkeyIcon />}
-            dataAttribute="data-shortcut-button"
-          />
-        )}
-        {!isMobileScreen &&
-          (() => {
-            const currentModel = session.mask.modelConfig.model;
-            const modelCapabilities =
-              getModelCapabilitiesWithCustomConfig(currentModel);
-            return (
-              modelCapabilities.reasoning &&
-              modelCapabilities.thinkingType && (
-                <ChatAction
-                  onClick={() =>
-                    props.setShowThinkingPanel(!props.showThinkingPanel)
-                  }
-                  text={Locale.Chat.Thinking.Title}
-                  icon={<BrainIcon />}
-                  dataAttribute="data-thinking-button"
-                />
-              )
-            );
-          })()}
-        {!isMobileScreen &&
-          (() => {
-            const currentModel = session.mask.modelConfig.model;
-            // 使用更精确的搜索模型检测
-            const supportsSearch = isWebSearchModel(currentModel);
-
-            if (!supportsSearch) return null;
-
-            const searchEnabled = session.searchEnabled ?? false;
-
-            return (
-              <ChatAction
-                onClick={() => {
-                  const newSearchEnabled = !searchEnabled;
-                  chatStore.updateTargetSession(session, (session) => {
-                    session.searchEnabled = newSearchEnabled;
-                  });
-
-                  // 显示状态切换提醒
-                  showToast(
-                    newSearchEnabled
-                      ? Locale.Chat.InputActions.SearchEnabledToast
-                      : Locale.Chat.InputActions.SearchDisabledToast,
-                  );
-                }}
-                text={
-                  searchEnabled
-                    ? Locale.Chat.InputActions.SearchOn
-                    : Locale.Chat.InputActions.SearchOff
-                }
-                icon={<SearchIcon />}
-                dataAttribute="data-search-button"
-              />
-            );
-          })()}
-        {!isMobileScreen && (
-          <MCPAction
-            onTogglePanel={() => props.setShowMcpPanel(!props.showMcpPanel)}
-          />
-        )}
-        {!isMobileScreen && (
-          <MultiModelAction onToggle={() => props.toggleMultiModelMode()} />
-        )}
-      </>
-      <div className={styles["chat-input-actions-end"]}>
-        {config.realtimeConfig.enable && (
-          <ChatAction
-            onClick={() => props.setShowChatSidePanel(true)}
-            text={"Realtime Chat"}
-            icon={<HeadphoneIcon />}
-          />
-        )}
-
-        {/* Token计数器和模型选择器 - 固定在右侧 */}
-        <div className={styles["model-selector-container"]}>
-          <TokenCounter
-            session={session}
-            currentModel={currentModel}
-            userInput={props.userInput}
-          />
-          <button
-            className={styles["model-selector-button"]}
-            onClick={() => props.setShowModelSelector(true)}
-          >
-            {session.multiModelMode?.enabled &&
-            session.multiModelMode.selectedModels.length > 1 ? (
-              <>
-                <div className={styles["model-icon"]}>
-                  <BrainIcon />
-                </div>
-                <span className={styles["model-name"]}>
-                  {session.multiModelMode.selectedModels
-                    .map((modelKey) => {
-                      const [modelName] = modelKey.split("@");
-                      return modelName;
-                    })
-                    .join(" / ")}
-                </span>
-              </>
-            ) : (
-              <>
-                <div className={styles["model-icon"]}>
-                  <ProviderIcon
-                    provider={currentProviderName}
-                    size={16}
-                    modelName={currentModel}
-                  />
-                </div>
-                <span className={styles["model-name"]}>{currentModelName}</span>
-              </>
-            )}
-          </button>
-
-          {props.showModelSelector && !session.multiModelMode?.enabled && (
-            <ModelSelectorModal
-              defaultSelectedValue={`${currentModel}@${currentProviderName}`}
-              groups={modelGroups}
-              searchPlaceholder={Locale.Chat.UI.SearchModels}
-              onClose={() => props.setShowModelSelector(false)}
-              onSelection={(selectedValue) => {
-                const [model, providerId] = getModelProvider(selectedValue);
-                chatStore.updateTargetSession(session, (session) => {
-                  session.mask.modelConfig.model = model as ModelType;
-                  session.mask.modelConfig.providerName = normalizeProviderName(
-                    providerId!,
-                  );
-                  session.mask.syncGlobalConfig = false;
-
-                  // 检查新模型是否支持thinking功能，如果支持且thinkingBudget未设置，则设置默认值
-                  const modelCapabilities =
-                    getModelCapabilitiesWithCustomConfig(
-                      session.mask.modelConfig.model,
-                    );
-                  if (
-                    modelCapabilities.reasoning &&
-                    modelCapabilities.thinkingType &&
-                    session.mask.modelConfig.thinkingBudget === undefined
-                  ) {
-                    session.mask.modelConfig.thinkingBudget = -1; // 默认为动态思考
-                  }
-
-                  // 根据新模型自动更新压缩阈值
-                  const autoThreshold = getModelCompressThreshold(model);
-                  session.mask.modelConfig.compressMessageLengthThreshold =
-                    autoThreshold;
-                });
-
-                const selectedModel = models.find(
-                  (m) => m.name == model && m?.provider?.id == providerId,
-                );
-
-                if (providerId == "ByteDance") {
-                  showToast(selectedModel?.displayName ?? "");
-                } else {
-                  showToast(selectedModel?.displayName || model);
-                }
-              }}
-            />
-          )}
-
-          {props.showModelSelector && session.multiModelMode?.enabled && (
-            <MultiModelSelectorModal
-              groups={modelGroups}
-              defaultSelectedValues={
-                session.multiModelMode?.selectedModels || []
-              }
-              searchPlaceholder={Locale.Chat.UI.SearchModels}
-              onClose={() => props.setShowModelSelector(false)}
-              onSelection={(selectedValues) => {
-                // 确保至少选择了两个模型
-                if (selectedValues.length < 2) {
-                  showToast(Locale.Chat.MultiModel.MinimumModelsError);
-                  return;
-                }
-
-                chatStore.updateTargetSession(session, (session) => {
-                  if (!session.multiModelMode) {
-                    session.multiModelMode = {
-                      enabled: true,
-                      selectedModels: [],
-                      modelMessages: {},
-                      modelStats: {},
-                      modelMemoryPrompts: {},
-                      modelSummarizeIndexes: {},
-                    };
-                  }
-
-                  session.multiModelMode.selectedModels = selectedValues;
-                  session.multiModelMode.enabled = true; // 确保启用多模型模式
-
-                  // 初始化新选中模型的数据结构
-                  selectedValues.forEach((modelKey) => {
-                    if (!session.multiModelMode!.modelMessages[modelKey]) {
-                      session.multiModelMode!.modelMessages[modelKey] = [];
-                    }
-                    if (!session.multiModelMode!.modelStats[modelKey]) {
-                      session.multiModelMode!.modelStats[modelKey] = {
-                        tokenCount: 0,
-                        wordCount: 0,
-                        charCount: 0,
-                      };
-                    }
-                    if (!session.multiModelMode!.modelMemoryPrompts[modelKey]) {
-                      session.multiModelMode!.modelMemoryPrompts[modelKey] = "";
-                    }
-                    if (
-                      !session.multiModelMode!.modelSummarizeIndexes[modelKey]
-                    ) {
-                      session.multiModelMode!.modelSummarizeIndexes[
-                        modelKey
-                      ] = 0;
-                    }
-                  });
-
-                  // 清理不再选中的模型数据
-                  const currentKeys = Object.keys(
-                    session.multiModelMode.modelMessages,
-                  );
-                  currentKeys.forEach((key) => {
-                    if (!selectedValues.includes(key)) {
-                      delete session.multiModelMode!.modelMessages[key];
-                      delete session.multiModelMode!.modelStats[key];
-                      delete session.multiModelMode!.modelMemoryPrompts[key];
-                      delete session.multiModelMode!.modelSummarizeIndexes[key];
-                    }
-                  });
-                });
-
-                showToast(
-                  Locale.Chat.MultiModel.ModelsSelectedToast(
-                    selectedValues.length,
-                  ),
-                );
-              }}
-            />
-          )}
-        </div>
-      </div>
+      {isMobileScreen ? (
+        // 移动端
+        <>
+          {leftActions}
+          {rightActions}
+        </>
+      ) : (
+        // PC端
+        <>
+          {leftActions}
+          <div className={styles["chat-input-actions-end"]}>{rightActions}</div>
+        </>
+      )}
     </div>
   );
 }
@@ -2121,11 +2130,11 @@ function _Chat() {
       }
     } else if (message.role === "user") {
       userMessage = message;
-      for (let i = resendingIndex; i < session.messages.length; i += 1) {
-        if (session.messages[i].role === "assistant") {
-          botMessage = session.messages[i];
-          break;
-        }
+      if (
+        resendingIndex + 1 < session.messages.length &&
+        session.messages[resendingIndex + 1].role === "assistant"
+      ) {
+        botMessage = session.messages[resendingIndex + 1];
       }
     }
 
@@ -2149,6 +2158,7 @@ function _Chat() {
     }
 
     // 如果是重试用户消息，使用原有逻辑（删除后续消息并重新发送）
+    deleteMessage(userMessage.id);
     setIsLoading(true);
     const textContent = getMessageTextContent(userMessage);
     const images = getMessageImages(userMessage);
@@ -2195,7 +2205,7 @@ function _Chat() {
 
   // 获取当前显示的消息内容
   const getCurrentMessageContent = (message: ChatMessage): string => {
-    if (!message.versions || message.versions.length <= 1) {
+    if (!message.versions || message.versions.length < 1) {
       return typeof message.content === "string" ? message.content : "";
     }
 
@@ -2297,34 +2307,19 @@ function _Chat() {
 
   // preview messages
   const renderMessages = useMemo(() => {
-    return context
-      .concat(session.messages as RenderMessage[])
-      .concat(
-        isLoading
-          ? [
-              {
-                ...createMessage({
-                  role: "assistant",
-                  content: "……",
-                }),
-                preview: true,
-              },
-            ]
-          : [],
-      )
-      .concat(
-        userInput.length > 0 && config.sendPreviewBubble
-          ? [
-              {
-                ...createMessage({
-                  role: "user",
-                  content: userInput,
-                }),
-                preview: true,
-              },
-            ]
-          : [],
-      );
+    return context.concat(session.messages as RenderMessage[]).concat(
+      userInput.length > 0 && config.sendPreviewBubble
+        ? [
+            {
+              ...createMessage({
+                role: "user",
+                content: userInput,
+              }),
+              preview: true,
+            },
+          ]
+        : [],
+    );
   }, [
     config.sendPreviewBubble,
     context,

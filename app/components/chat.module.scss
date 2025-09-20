@@ -1467,3 +1467,17 @@ height: 15vh;
     }
   }
 }
+
+@media only screen and (max-width: 600px) {
+  .chat-input-actions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+    &::-webkit-scrollbar {
+      display: none;           /* Chrome, Safari, and Opera */
+    }
+  }
+}

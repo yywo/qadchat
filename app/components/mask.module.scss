@@ -69,6 +69,7 @@
         }
 
         .mask-title {
+          overflow: hidden;
           .mask-name {
             font-size: 14px;
             font-weight: bold;
@@ -104,5 +105,14 @@
         }
       }
     }
+  }
+}
+
+.select-default-model {
+  width: 60%;
+  select {
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-all;
   }
 }
