@@ -791,7 +791,7 @@ export const CHAT_PAGE_SIZE = 15;
 export const MAX_RENDER_MSG_COUNT = 45;
 
 // some famous webdav endpoints
-export const internalAllowedWebDavEndpoints = [
+const internalAllowedWebDavEndpoints = [
   "https://dav.jianguoyun.com/dav/",
   "https://dav.dropdav.com/",
   "https://dav.box.com/dav",
@@ -801,6 +801,16 @@ export const internalAllowedWebDavEndpoints = [
   "https://dav.idrivesync.com",
   "https://webdav.yandex.com",
   "https://app.koofr.net/dav/Koofr",
+];
+
+// additional webdav endpoints specified by environment variable
+const whiteWebDavEndpoints = (process.env.WHITE_WEBDAV_ENDPOINTS ?? "")
+  .split(",")
+  .filter((v) => v);
+
+export const allowedWebDavEndpoints = [
+  ...internalAllowedWebDavEndpoints,
+  ...whiteWebDavEndpoints,
 ];
 
 export const DEFAULT_GA_ID = "G-89WN60ZK2E";
