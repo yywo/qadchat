@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { STORAGE_KEY, internalAllowedWebDavEndpoints } from "../../../constant";
+import { STORAGE_KEY, allowedWebDavEndpoints } from "../../../constant";
 
-const mergedAllowedWebDavEndpoints = [...internalAllowedWebDavEndpoints].filter(
+const mergedAllowedWebDavEndpoints = [...allowedWebDavEndpoints].filter(
   (domain) => Boolean(domain.trim()),
 );
 
