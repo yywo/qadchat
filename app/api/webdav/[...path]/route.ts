@@ -1,9 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { STORAGE_KEY, allowedWebDavEndpoints } from "../../../constant";
+import { STORAGE_KEY, internalAllowedWebDavEndpoints } from "../../../constant";
 
-const mergedAllowedWebDavEndpoints = [...allowedWebDavEndpoints].filter(
-  (domain) => Boolean(domain.trim()),
-);
+// Merge internal allowlist with server-provided env list (server-side only)
+function getAllowedWebDavEndpoints() {
+  const raw = process.env.WHITE_WEBDAV_ENDPOINTS ?? "";
+  const extra = raw
+    .split(/[\n,]/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s) => {
+      try {
+        const u = new URL(s);
+        if (u.protocol !== "https:") return null; // enforce https
+        if (!u.pathname.endsWith("/")) u.pathname += "/"; // normalize
+        return `${u.origin}${u.pathname}`;
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean) as string[];
+
+  const normalizedInternal = internalAllowedWebDavEndpoints
+    .map((s) => {
+      try {
+        const u = new URL(s);
+        if (!u.pathname.endsWith("/")) u.pathname += "/";
+        return `${u.origin}${u.pathname}`;
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean) as string[];
+
+  return Array.from(new Set([...normalizedInternal, ...extra]));
+}
+
+const mergedAllowedWebDavEndpoints = getAllowedWebDavEndpoints();
 
 const normalizeUrl = (url: string) => {
   try {
@@ -36,6 +68,7 @@ async function handle(
 
       return (
         normalizedEndpoint &&
+        normalizedEndpoint.protocol === "https:" &&
         normalizedEndpoint.hostname === normalizedAllowedEndpoint?.hostname &&
         normalizedEndpoint.pathname.startsWith(
           normalizedAllowedEndpoint.pathname,

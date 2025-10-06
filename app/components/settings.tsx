@@ -495,6 +495,11 @@ function CheckButton() {
     setCheckState("checking");
     const valid = await syncStore.check();
     setCheckState(valid ? "success" : "failed");
+    if (valid) {
+      showToast(Locale.UI.Success ?? "可用性检查通过");
+    } else {
+      showToast(Locale.Settings.Sync.Fail ?? "可用性检查失败");
+    }
   }
 
   if (!couldCheck) return null;
