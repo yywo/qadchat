@@ -406,7 +406,8 @@ const cn = {
       },
       AccessCode: {
         Title: "访问密码",
-        SubTitle: "管理员已开启加密访问",
+        SubTitle:
+          "已启用访问控制。带有 “SERVER” 标识表示后端已为该服务商配置了 API Key（通过环境变量）。输入正确访问码后，可直接使用这些服务商，无需在此填写 API Key。",
         Placeholder: "请输入访问密码",
       },
       CustomEndpoint: {
