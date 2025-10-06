@@ -24,7 +24,6 @@ import {
 } from "react-router-dom";
 import { SideBar, useDragSideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
-import { AuthPage } from "./auth";
 import { getClientConfig } from "../config/client";
 import { type ClientApi, getClientApi } from "../client/api";
 import { useAccessStore } from "../store";
@@ -155,7 +154,6 @@ function Screen() {
   const location = useLocation();
   const isArtifact = location.pathname.includes(Path.Artifacts);
   const isHome = location.pathname === Path.Home;
-  const isAuth = location.pathname === Path.Auth;
   const isSettings = location.pathname === Path.Settings;
 
   const isMobileScreen = useMobileScreen();
@@ -163,18 +161,7 @@ function Screen() {
     getClientConfig()?.isApp || (config.tightBorder && !isMobileScreen);
   const { isCollapsed } = useDragSideBar();
 
-  // 检查是否需要访问码验证
-  const needsAuth = () => {
-    // 如果正在访问认证页面或设置页面，不需要验证
-    if (isAuth || isSettings) return false;
-
-    // 如果有环境变量设置的访问码要求
-    if (accessStore.enabledAccessControl()) {
-      return !accessStore.isAuthorized();
-    }
-
-    return false;
-  };
+  // 旧的鉴权页已移除，访问控制由请求时校验与设置页输入处理
 
   useEffect(() => {
     loadAsyncGoogleFont();
@@ -188,11 +175,6 @@ function Screen() {
     );
   }
   const renderContent = () => {
-    // 如果需要认证，显示认证页面
-    if (needsAuth()) return <AuthPage />;
-
-    if (isAuth) return <AuthPage />;
-
     return (
       <>
         <SideBar
@@ -209,6 +191,8 @@ function Screen() {
             <Route path={Path.SearchChat} element={<SearchChat />} />
             <Route path={Path.Chat} element={<Chat />} />
             <Route path={Path.Settings} element={<Settings />} />
+            {/* 将旧的 /auth 路由指向设置页，避免无效跳转 */}
+            <Route path={Path.Auth} element={<Settings />} />
             <Route path={Path.McpMarket} element={<McpMarketPage />} />
           </Routes>
         </WindowContent>

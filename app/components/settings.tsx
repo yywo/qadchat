@@ -1492,8 +1492,8 @@ export function Settings() {
             checkingUpdate
               ? Locale.Settings.Update.IsChecking
               : hasNewVersion
-              ? Locale.Settings.Update.FoundUpdate(remoteId ?? "ERROR")
-              : Locale.Settings.Update.IsLatest
+                ? Locale.Settings.Update.FoundUpdate(remoteId ?? "ERROR")
+                : Locale.Settings.Update.IsLatest
           }
         >
           {checkingUpdate ? (
@@ -1676,45 +1676,7 @@ export function Settings() {
           ></input>
         </ListItem>
 
-        {/* 访问码配置 - 当启用访问控制时显示 */}
-        {(accessStore.enabledAccessControl() ||
-          accessStore.hasServerProviderConfig) && (
-          <ListItem
-            title={Locale.Settings.AccessCode.Title}
-            subTitle={Locale.Settings.AccessCode.SubTitle}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                alignItems: "center",
-                gap: "10px",
-              }}
-            >
-              <PasswordInput
-                value={accessStore.accessCode}
-                type="text"
-                placeholder={Locale.Settings.AccessCode.Placeholder}
-                onChange={(e) => {
-                  accessStore.update(
-                    (access) => (access.accessCode = e.currentTarget.value),
-                  );
-                }}
-                style={{ flex: 1 }}
-              />
-              <span
-                style={{
-                  fontSize: "12px",
-                  color: accessStore.accessCode ? "#4CAF50" : "#FF9800",
-                }}
-              >
-                {accessStore.accessCode
-                  ? Locale.Settings.AccessCode.Status.Valid
-                  : Locale.Settings.AccessCode.Status.Enabled}
-              </span>
-            </div>
-          </ListItem>
-        )}
+        {/* 旧的通用访问码配置项已移除，仅保留模型服务配置页的访问码输入框 */}
       </List>
       <DangerItems />
     </>
@@ -1980,7 +1942,7 @@ export function Settings() {
                   config.provider as ServiceProvider
                 ] || false;
             const isCollapsed = config.isCustom
-              ? collapsedCustomProviders[config.provider as string] ?? true // 自定义服务商默认折叠
+              ? (collapsedCustomProviders[config.provider as string] ?? true) // 自定义服务商默认折叠
               : collapsedProviders[config.provider as ServiceProvider] || false;
 
             return (

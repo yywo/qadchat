@@ -171,7 +171,6 @@ const DEFAULT_ACCESS_STATE = {
   customProviders: [] as CustomProvider[],
 
   // server config
-  needCode: false, // 默认不需要访问码，从服务器配置获取
   hideUserApiKey: false,
   hideBalanceQuery: false,
   disableGPT4: false,
@@ -340,8 +339,8 @@ export const useAccessStore = createPersistStore(
   (set, get) => ({
     enabledAccessControl() {
       this.fetch();
-
-      return get().needCode;
+      // 仅当服务器设置了访问码时启用访问控制
+      return get().hasServerAccessCode;
     },
     getVisionModels() {
       this.fetch();
