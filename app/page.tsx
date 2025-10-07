@@ -1,17 +1,12 @@
+"use client";
+
 import { Analytics } from "@vercel/analytics/react";
-import dynamic from "next/dynamic";
+import { Home } from "./components/home";
 
-const HomeClient = dynamic(
-  async () => (await import("./components/home")).Home,
-  {
-    ssr: false,
-  },
-);
-
-export default async function App() {
+export default function App() {
   return (
     <>
-      <HomeClient />
+      <Home />
       <Analytics />
     </>
   );
