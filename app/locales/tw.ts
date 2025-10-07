@@ -281,10 +281,7 @@ const tw = {
       SubTitle: "聊天內容的字型，若留空則套用全域預設字型",
       Placeholder: "字型名稱",
     },
-    InjectSystemPrompts: {
-      Title: "匯入系統提示",
-      SubTitle: "強制在每個請求的訊息列表開頭新增一個模擬 ChatGPT 的系統提示",
-    },
+
     InputTemplate: {
       Title: "使用者輸入預處理",
       SubTitle: "使用者最新的一則訊息會填充到此範本",

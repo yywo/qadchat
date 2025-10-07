@@ -69,15 +69,14 @@ export const DEFAULT_CONFIG = {
     providerName: "OpenAI" as ServiceProvider,
     temperature: 0.5,
     top_p: 1,
-    max_tokens: 4000,
+    max_tokens: -1,
     presence_penalty: 0,
     frequency_penalty: 0,
     sendMemory: true,
-    historyMessageCount: 4,
+    historyMessageCount: 64,
     compressMessageLengthThreshold: getModelCompressThreshold("gpt-4o-mini"),
     compressModel: "",
     compressProviderName: "",
-    enableInjectSystemPrompts: true,
     template: config?.template ?? DEFAULT_INPUT_TEMPLATE,
     size: "1024x1024" as ModelSize,
     quality: "standard" as DalleQuality,
@@ -99,10 +98,6 @@ export const DEFAULT_CONFIG = {
     provider: "OpenAI" as ServiceProvider,
     model: "gpt-4o-realtime-preview-2024-10-01",
     apiKey: "",
-    azure: {
-      endpoint: "",
-      deployment: "",
-    },
     temperature: 0.9,
     voice: "alloy" as Voice,
   },
@@ -147,7 +142,9 @@ export const ModalConfigValidator = {
     return x as ModelType;
   },
   max_tokens(x: number) {
-    return limitNumber(x, 0, 512000, 1024);
+    if (isNaN(x)) return -1;
+    if (x < 0) return -1; // -1 表示不限制
+    return limitNumber(x, 0, 512000, -1);
   },
   presence_penalty(x: number) {
     return limitNumber(x, -2, 2, 0);
@@ -225,7 +222,7 @@ export const useAppConfig = createPersistStore(
 
       if (version < 3.4) {
         state.modelConfig.sendMemory = true;
-        state.modelConfig.historyMessageCount = 4;
+        state.modelConfig.historyMessageCount = 64;
         state.modelConfig.compressMessageLengthThreshold = 1000;
         state.modelConfig.frequency_penalty = 0;
         state.modelConfig.top_p = 1;
@@ -234,10 +231,6 @@ export const useAppConfig = createPersistStore(
 
       if (version < 3.5) {
         state.customModels = "claude,claude-100k";
-      }
-
-      if (version < 3.6) {
-        state.modelConfig.enableInjectSystemPrompts = true;
       }
 
       if (version < 3.7) {
@@ -252,7 +245,7 @@ export const useAppConfig = createPersistStore(
         state.modelConfig.template =
           state.modelConfig.template !== DEFAULT_INPUT_TEMPLATE
             ? state.modelConfig.template
-            : config?.template ?? DEFAULT_INPUT_TEMPLATE;
+            : (config?.template ?? DEFAULT_INPUT_TEMPLATE);
       }
 
       if (version < 4.1) {

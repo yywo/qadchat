@@ -24,7 +24,6 @@ import { showToast } from "../components/ui-lib";
 import {
   DEFAULT_INPUT_TEMPLATE,
   DEFAULT_MODELS,
-  DEFAULT_SYSTEM_TEMPLATE,
   GEMINI_SUMMARIZE_MODEL,
   DEEPSEEK_SUMMARIZE_MODEL,
   KnowledgeCutOffDate,
@@ -885,12 +884,6 @@ export const useChatStore = createPersistStore(
         // in-context prompts
         const contextPrompts = session.mask.context.slice();
 
-        // system prompts, to get close to OpenAI Web ChatGPT
-        const shouldInjectSystemPrompts =
-          modelConfig.enableInjectSystemPrompts &&
-          (session.mask.modelConfig.model.startsWith("gpt-") ||
-            session.mask.modelConfig.model.startsWith("chatgpt-"));
-
         const mcpSystemPrompt = await getMcpSystemPrompt(
           session.mcpEnabled ?? false,
           session.mcpEnabledClients,
@@ -898,18 +891,7 @@ export const useChatStore = createPersistStore(
 
         var systemPrompts: ChatMessage[] = [];
 
-        if (shouldInjectSystemPrompts) {
-          systemPrompts = [
-            createMessage({
-              role: "system",
-              content:
-                fillTemplateWith("", {
-                  ...modelConfig,
-                  template: DEFAULT_SYSTEM_TEMPLATE,
-                }) + mcpSystemPrompt,
-            }),
-          ];
-        } else if (mcpSystemPrompt) {
+        if (mcpSystemPrompt) {
           // 只在 mcpSystemPrompt 不為空時才創建 system message
           systemPrompts = [
             createMessage({
@@ -920,7 +902,7 @@ export const useChatStore = createPersistStore(
         }
         // 如果兩者都沒有，systemPrompts 保持為空數組
 
-        if (shouldInjectSystemPrompts || mcpSystemPrompt) {
+        if (mcpSystemPrompt) {
           if (process.env.NODE_ENV === "development") {
             console.log(
               "[Global System Prompt] ",
@@ -956,7 +938,10 @@ export const useChatStore = createPersistStore(
           : shortTermMemoryStartIndex;
         // and if user has cleared history messages, we should exclude the memory too.
         const contextStartIndex = Math.max(clearContextIndex, memoryStartIndex);
-        const maxTokenThreshold = modelConfig.max_tokens;
+        const maxTokenThreshold =
+          modelConfig.max_tokens && modelConfig.max_tokens > 0
+            ? modelConfig.max_tokens
+            : Number.POSITIVE_INFINITY;
 
         // get recent messages as much as possible
         const reversedRecentMessages = [];
@@ -1110,7 +1095,10 @@ export const useChatStore = createPersistStore(
 
         const historyMsgLength = countMessages(toBeSummarizedMsgs);
 
-        if (historyMsgLength > (modelConfig?.max_tokens || 4000)) {
+        if (
+          modelConfig?.max_tokens > 0 &&
+          historyMsgLength > modelConfig.max_tokens
+        ) {
           const n = toBeSummarizedMsgs.length;
           toBeSummarizedMsgs = toBeSummarizedMsgs.slice(
             Math.max(0, n - modelConfig.historyMessageCount),
@@ -1411,7 +1399,7 @@ export const useChatStore = createPersistStore(
           newSession.topic = oldSession.topic;
           newSession.messages = [...oldSession.messages];
           newSession.mask.modelConfig.sendMemory = true;
-          newSession.mask.modelConfig.historyMessageCount = 4;
+          newSession.mask.modelConfig.historyMessageCount = 64;
           newSession.mask.modelConfig.compressMessageLengthThreshold = 1000;
           newState.sessions.push(newSession);
         }
@@ -1422,23 +1410,6 @@ export const useChatStore = createPersistStore(
         newState.sessions.forEach((s) => {
           s.id = nanoid();
           s.messages.forEach((m) => (m.id = nanoid()));
-        });
-      }
-
-      // Enable `enableInjectSystemPrompts` attribute for old sessions.
-      // Resolve issue of old sessions not automatically enabling.
-      if (version < 3.1) {
-        newState.sessions.forEach((s) => {
-          if (
-            // Exclude those already set by user
-            !s.mask.modelConfig.hasOwnProperty("enableInjectSystemPrompts")
-          ) {
-            // Because users may have changed this configuration,
-            // the user's current configuration is used instead of the default
-            const config = useAppConfig.getState();
-            s.mask.modelConfig.enableInjectSystemPrompts =
-              config.modelConfig.enableInjectSystemPrompts;
-          }
         });
       }
 
