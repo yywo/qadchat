@@ -85,6 +85,7 @@ const ThinkCollapse = ({
   className,
   fontSize,
 }: ThinkCollapseProps) => {
+  const isSSR = typeof window === "undefined";
   // 如果是 Thinking 状态，默认展开，否则折叠
   const defaultActive = title === Locale.NewChat.Thinking ? ["1"] : [];
   // 如果是 NoThink 状态，禁用
@@ -142,6 +143,22 @@ const ThinkCollapse = ({
     const textContent = getTextContent(children);
     copyToClipboard(textContent);
   };
+
+  // 在 SSR 环境下回退为简化渲染，避免第三方 UI 组件导致的无效元素错误
+  if (isSSR) {
+    return (
+      <div
+        className={`${styles["think-collapse"]} ${
+          disabled ? styles.disabled : ""
+        } ${className || ""}`}
+      >
+        <div className={styles["think-collapse-header"]}>
+          <span>{title}</span>
+        </div>
+        {!disabled && <div>{children}</div>}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -464,7 +481,7 @@ function formatThinkText(
   return { thinkText: "", remainText: text };
 }
 
-function _MarkDownContent(props: {
+function MarkdownContentInner(props: {
   content: string;
   thinkingTime?: number;
   fontSize?: number;
@@ -578,7 +595,7 @@ function _MarkDownContent(props: {
               );
             }
             const isInternal = /^\/#/i.test(href);
-            const target = isInternal ? "_self" : aProps.target ?? "_blank";
+            const target = isInternal ? "_self" : (aProps.target ?? "_blank");
             return <a {...aProps} target={target} />;
           },
         } as any
@@ -589,7 +606,7 @@ function _MarkDownContent(props: {
   );
 }
 
-export const MarkdownContent = React.memo(_MarkDownContent);
+export const MarkdownContent = React.memo(MarkdownContentInner);
 
 export function Markdown(
   props: {

@@ -320,6 +320,10 @@ export class ChatGPTApi implements LLMApi {
         );
       }
       if (shouldStream) {
+        const headers = getHeaders(false, {
+          model: options.config.model,
+          providerName: options.config.providerName,
+        });
         let index = -1;
         const tools: any[] = [];
         const funcs: Record<string, Function> = {};
@@ -329,10 +333,7 @@ export class ChatGPTApi implements LLMApi {
         streamWithThink(
           chatPath,
           requestPayload,
-          getHeaders(false, {
-            model: options.config.model,
-            providerName: options.config.providerName,
-          }),
+          headers,
           tools as any,
           funcs,
           controller,
@@ -341,16 +342,22 @@ export class ChatGPTApi implements LLMApi {
             const json = JSON.parse(text);
             const choices = json.choices as Array<{
               delta: {
-                content: string;
-                tool_calls: ChatMessageTool[];
-                reasoning_content: string | null;
+                content?: string;
+                tool_calls?: ChatMessageTool[];
+                reasoning_content?: string | null;
+                reasoning?: string | null;
+                thought?: string | null;
+                thinking?: string | null;
               };
             }>;
 
             if (!choices?.length) return { isThinking: false, content: "" };
 
-            const tool_calls = choices[0]?.delta?.tool_calls;
-            if (tool_calls?.length > 0) {
+            const delta = choices[0]?.delta ?? {};
+            const tool_calls = (delta as any)?.tool_calls as
+              | ChatMessageTool[]
+              | undefined;
+            if (tool_calls && tool_calls.length > 0) {
               const id = tool_calls[0]?.id;
               const args = tool_calls[0]?.function?.arguments;
               if (id) {
@@ -369,8 +376,13 @@ export class ChatGPTApi implements LLMApi {
               }
             }
 
-            const reasoning = choices[0]?.delta?.reasoning_content;
-            const content = choices[0]?.delta?.content;
+            const reasoning =
+              (delta as any)?.reasoning_content ??
+              (delta as any)?.reasoning ??
+              (delta as any)?.thought ??
+              (delta as any)?.thinking ??
+              null;
+            const content = (delta as any)?.content as string | undefined;
 
             // Skip if both content and reasoning_content are empty or null
             if (
@@ -383,10 +395,10 @@ export class ChatGPTApi implements LLMApi {
               };
             }
 
-            if (reasoning && reasoning.length > 0) {
+            if (reasoning && String(reasoning).length > 0) {
               return {
                 isThinking: true,
-                content: reasoning,
+                content: String(reasoning),
               };
             } else if (content && content.length > 0) {
               return {

@@ -58,7 +58,7 @@ class DebouncedStorage implements StateStorage {
     }
     this.pendingData.delete(name);
 
-    return this.storage.removeItem(name);
+    await (this.storage.removeItem as any)(name);
   }
 
   async clear(): Promise<void> {
@@ -67,7 +67,9 @@ class DebouncedStorage implements StateStorage {
     this.pendingWrites.clear();
     this.pendingData.clear();
 
-    return (this.storage as any).clear?.() || Promise.resolve();
+    if ((this.storage as any).clear) {
+      await (this.storage as any).clear();
+    }
   }
 
   // 立即刷新所有待写入的数据
@@ -78,7 +80,10 @@ class DebouncedStorage implements StateStorage {
       clearTimeout(timer);
       const value = this.pendingData.get(name);
       if (value !== undefined) {
-        promises.push(Promise.resolve(this.storage.setItem(name, value)));
+        const p = (async () => {
+          await (this.storage.setItem as any)(name, value);
+        })();
+        promises.push(p);
       }
     }
 

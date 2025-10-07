@@ -14,7 +14,7 @@ const en: LocaleType = {
      \\ 2️⃣ Want to use your own OpenAI resources? [Click here](/#/settings) to change settings ⚙️`
       : `😆 Oops, there's an issue. Let's fix it:
      \ 1️⃣ Check project documentation, [Click here to visit GitHub 🚀](${SAAS_CHAT_UTM_URL})
-     \ 2️⃣ Using a private setup? [Click here](/#/auth) to enter your key 🔑
+     \ 2️⃣ Using a private setup? Go to [Settings](/#/settings) to enter access code 🔑
      \ 3️⃣ Want to use your own OpenAI resources? [Click here](/#/settings) to change settings ⚙️
      `,
   },
@@ -953,6 +953,7 @@ const en: LocaleType = {
     Import: "Import",
     Sync: "Sync",
     Config: "Config",
+    Success: "Success",
   },
   Exporter: {
     Description: {

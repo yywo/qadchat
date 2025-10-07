@@ -21,6 +21,14 @@ const nextConfig = {
       child_process: false,
     };
 
+    // Ignore optional native deps required by ws in some packages (rt-client)
+    // These are performance add-ons and not required in the browser/edge runtime
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      bufferutil: false,
+      "utf-8-validate": false,
+    };
+
     return config;
   },
   output: mode,
