@@ -423,11 +423,11 @@ const en: LocaleType = {
       },
       CustomEndpoint: {
         Title: "Custom Endpoint",
-        SubTitle: "Use custom Azure or OpenAI service",
+        SubTitle: "Use custom endpoint",
       },
       Provider: {
         Title: "Model Provider",
-        SubTitle: "Select Azure or OpenAI",
+        SubTitle: "Select provider",
         Name: {
           ByteDance: "ByteDance",
           Alibaba: "Alibaba Cloud",
@@ -444,7 +444,6 @@ const en: LocaleType = {
         },
         Description: {
           OpenAI: "OpenAI GPT Series Models",
-          Azure: "Microsoft Azure OpenAI Service",
           Google: "Google Gemini Series Models",
           Anthropic: "Anthropic Claude Series Models",
           ByteDance: "ByteDance Doubao Series Models",
@@ -471,23 +470,7 @@ const en: LocaleType = {
           SubTitle: "Must start with http(s):// or use /api/openai as default",
         },
       },
-      Azure: {
-        ApiKey: {
-          Title: "Azure Api Key",
-          SubTitle: "Check your api key from Azure console",
-          Placeholder: "Azure Api Key",
-        },
 
-        Endpoint: {
-          Title: "Azure Endpoint",
-          SubTitle: "Example: ",
-        },
-
-        ApiVerion: {
-          Title: "Azure Api Version",
-          SubTitle: "Check your api version from azure console",
-        },
-      },
       Anthropic: {
         ApiKey: {
           Title: "Anthropic API Key",
@@ -733,7 +716,8 @@ const en: LocaleType = {
     },
     MaxTokens: {
       Title: "Max Tokens",
-      SubTitle: "Maximum length of input tokens and generated tokens",
+      SubTitle:
+        "Maximum tokens per request. Set -1 for no limit and this field will not be sent in the request.",
     },
     PresencePenalty: {
       Title: "Presence Penalty",
@@ -789,16 +773,7 @@ const en: LocaleType = {
         SubTitle: "API Key",
         Placeholder: "API Key",
       },
-      Azure: {
-        Endpoint: {
-          Title: "Endpoint",
-          SubTitle: "Endpoint",
-        },
-        Deployment: {
-          Title: "Deployment Name",
-          SubTitle: "Deployment Name",
-        },
-      },
+
       Temperature: {
         Title: "Randomness (temperature)",
         SubTitle: "Higher values result in more random responses",

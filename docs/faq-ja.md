@@ -174,7 +174,6 @@ OpenAI では、指定された地域のクレジットカードのみご利用�
 (4月6日更新) GPT-4 API へのアクセスには別途申請が必要です。以下のアドレスにアクセスし、ウェイティングリストに参加するための情報を入力してください（OpenAI の組織 ID をご用意ください）: https://openai.com/waitlist/gpt-4-api
 その後、メールの更新をお待ちください。
 
-## Azure OpenAI インターフェースの使い方
 
 次を参照: [#371](https://github.com/Yidadaa/ChatGPT-Next-Web/issues/371)
 

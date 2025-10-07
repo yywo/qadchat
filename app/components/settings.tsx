@@ -61,7 +61,6 @@ import { groupBy } from "lodash-es";
 import Link from "next/link";
 import {
   Anthropic,
-  Azure,
   ByteDance,
   Alibaba,
   Moonshot,
@@ -830,7 +829,6 @@ export function Settings() {
     Record<ServiceProvider, boolean>
   >({
     [ServiceProvider.OpenAI]: true, // 默认全部折叠
-    [ServiceProvider.Azure]: true,
     [ServiceProvider.Google]: true,
     [ServiceProvider.Anthropic]: true,
     [ServiceProvider.ByteDance]: true,
@@ -965,64 +963,6 @@ export function Settings() {
             );
           }}
         />
-      </ListItem>
-    </>
-  );
-
-  const azureConfigComponent = (
-    <>
-      <ListItem
-        title={Locale.Settings.Access.Azure.Endpoint.Title}
-        subTitle={
-          <span className={styles["long-text-wrap"]}>
-            {Locale.Settings.Access.Azure.Endpoint.SubTitle +
-              Azure.ExampleEndpoint}
-          </span>
-        }
-      >
-        <input
-          aria-label={Locale.Settings.Access.Azure.Endpoint.Title}
-          type="text"
-          value={accessStore.azureUrl}
-          placeholder={Azure.ExampleEndpoint}
-          onChange={(e) =>
-            accessStore.update(
-              (access) => (access.azureUrl = e.currentTarget.value),
-            )
-          }
-        ></input>
-      </ListItem>
-      <ListItem
-        title={Locale.Settings.Access.Azure.ApiKey.Title}
-        subTitle={Locale.Settings.Access.Azure.ApiKey.SubTitle}
-      >
-        <PasswordInput
-          aria-label={Locale.Settings.Access.Azure.ApiKey.Title}
-          value={accessStore.azureApiKey}
-          type="text"
-          placeholder={Locale.Settings.Access.Azure.ApiKey.Placeholder}
-          onChange={(e) => {
-            accessStore.update(
-              (access) => (access.azureApiKey = e.currentTarget.value),
-            );
-          }}
-        />
-      </ListItem>
-      <ListItem
-        title={Locale.Settings.Access.Azure.ApiVerion.Title}
-        subTitle={Locale.Settings.Access.Azure.ApiVerion.SubTitle}
-      >
-        <input
-          aria-label={Locale.Settings.Access.Azure.ApiVerion.Title}
-          type="text"
-          value={accessStore.azureApiVersion}
-          placeholder="2023-08-01-preview"
-          onChange={(e) =>
-            accessStore.update(
-              (access) => (access.azureApiVersion = e.currentTarget.value),
-            )
-          }
-        ></input>
       </ListItem>
     </>
   );
@@ -1826,13 +1766,7 @@ export function Settings() {
       configComponent: openAIConfigComponent,
       isCustom: false,
     },
-    {
-      provider: ServiceProvider.Azure,
-      name: "Azure OpenAI",
-      description: Locale.Settings.Access.Provider.Description.Azure,
-      configComponent: azureConfigComponent,
-      isCustom: false,
-    },
+
     {
       provider: ServiceProvider.Google,
       name: "Google",
@@ -1939,8 +1873,7 @@ export function Settings() {
                   return !!sp.google?.hasApiKey;
                 case ServiceProvider.Anthropic:
                   return !!sp.anthropic?.hasApiKey;
-                case ServiceProvider.Azure:
-                  return !!sp.azure?.hasApiKey;
+
                 case ServiceProvider.ByteDance:
                   return !!sp.bytedance?.hasApiKey;
                 case ServiceProvider.Alibaba:
@@ -2045,7 +1978,6 @@ export function Settings() {
                               if (!access.enabledProviders) {
                                 access.enabledProviders = {
                                   [ServiceProvider.OpenAI]: false,
-                                  [ServiceProvider.Azure]: false,
                                   [ServiceProvider.Google]: false,
                                   [ServiceProvider.Anthropic]: false,
                                   [ServiceProvider.ByteDance]: false,

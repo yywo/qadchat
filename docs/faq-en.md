@@ -174,7 +174,6 @@ OpenAI only accepts credit cards from designated regions (Chinese credit cards c
 (Updated April 6th) Access to the GPT-4 API requires a separate application. Go to the following address and enter your information to join the waitlist (prepare your OpenAI organization ID): https://openai.com/waitlist/gpt-4-api
 Wait for email updates afterwards.
 
-## How to use the Azure OpenAI interface
 
 Please refer to: [#371](https://github.com/Yidadaa/ChatGPT-Next-Web/issues/371)
 

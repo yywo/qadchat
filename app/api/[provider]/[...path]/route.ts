@@ -1,7 +1,6 @@
 import { ApiPath } from "@/app/constant";
 import { NextRequest } from "next/server";
 import { handle as openaiHandler } from "../../openai";
-import { handle as azureHandler } from "../../azure";
 import { handle as googleHandler } from "../../google";
 import { handle as anthropicHandler } from "../../anthropic";
 import { handle as bytedanceHandler } from "../../bytedance";
@@ -26,8 +25,6 @@ async function handle(
   }
 
   switch (apiPath) {
-    case ApiPath.Azure:
-      return azureHandler(req, { params });
     case ApiPath.Google:
       return googleHandler(req, { params });
     case ApiPath.Anthropic:

@@ -47,7 +47,6 @@ export enum Path {
 
 export enum ApiPath {
   Cors = "",
-  Azure = "/api/azure",
   OpenAI = "/api/openai",
   Anthropic = "/api/anthropic",
   Google = "/api/google",
@@ -102,7 +101,6 @@ export const EXPORT_MESSAGE_CLASS_NAME = "export-markdown";
 
 export enum ServiceProvider {
   OpenAI = "OpenAI",
-  Azure = "Azure",
   Google = "Google",
   Anthropic = "Anthropic",
   ByteDance = "ByteDance",
@@ -146,15 +144,6 @@ export const OpenaiPath = {
   SpeechPath: "v1/audio/speech",
   ImagePath: "v1/images/generations",
   ListModelPath: "v1/models",
-};
-
-export const Azure = {
-  ChatPath: (deployName: string, apiVersion: string) =>
-    `deployments/${deployName}/chat/completions?api-version=${apiVersion}`,
-  // https://<your_resource_name>.openai.azure.com/openai/deployments/<your_deployment_name>/images/generations?api-version=<api_version>
-  ImagePath: (deployName: string, apiVersion: string) =>
-    `deployments/${deployName}/images/generations?api-version=${apiVersion}`,
-  ExampleEndpoint: "https://{resource-url}/openai",
 };
 
 export const Google = {
@@ -677,18 +666,6 @@ export const DEFAULT_MODELS = [
       sorted: 1, // 这里是固定的，确保顺序与之前内置的版本一致
     },
   })),
-  ...openaiModels.map((name) => ({
-    name,
-    available: true,
-    sorted: seq++,
-    contextTokens: getModelContextTokens(name)?.contextTokens,
-    provider: {
-      id: "azure",
-      providerName: "Azure",
-      providerType: "azure",
-      sorted: 2,
-    },
-  })),
   ...googleModels.map((name) => ({
     name,
     available: true,
@@ -698,7 +675,7 @@ export const DEFAULT_MODELS = [
       id: "google",
       providerName: "Google",
       providerType: "google",
-      sorted: 3,
+      sorted: 2,
     },
   })),
   ...anthropicModels.map((name) => ({
@@ -710,7 +687,7 @@ export const DEFAULT_MODELS = [
       id: "anthropic",
       providerName: "Anthropic",
       providerType: "anthropic",
-      sorted: 4,
+      sorted: 3,
     },
   })),
   ...bytedanceModels.map((name) => ({
@@ -722,7 +699,7 @@ export const DEFAULT_MODELS = [
       id: "bytedance",
       providerName: "ByteDance",
       providerType: "bytedance",
-      sorted: 5,
+      sorted: 4,
     },
   })),
   ...alibabaModes.map((name) => ({
@@ -734,7 +711,7 @@ export const DEFAULT_MODELS = [
       id: "alibaba",
       providerName: "Alibaba",
       providerType: "alibaba",
-      sorted: 6,
+      sorted: 5,
     },
   })),
   ...moonshotModes.map((name) => ({
@@ -746,7 +723,7 @@ export const DEFAULT_MODELS = [
       id: "moonshot",
       providerName: "Moonshot",
       providerType: "moonshot",
-      sorted: 7,
+      sorted: 6,
     },
   })),
   ...xAIModes.map((name) => ({
@@ -758,7 +735,7 @@ export const DEFAULT_MODELS = [
       id: "xai",
       providerName: "XAI",
       providerType: "xai",
-      sorted: 8,
+      sorted: 7,
     },
   })),
   ...deepseekModels.map((name) => ({
@@ -770,7 +747,7 @@ export const DEFAULT_MODELS = [
       id: "deepseek",
       providerName: "DeepSeek",
       providerType: "deepseek",
-      sorted: 9,
+      sorted: 8,
     },
   })),
   ...siliconflowModels.map((name) => ({
@@ -782,7 +759,7 @@ export const DEFAULT_MODELS = [
       id: "siliconflow",
       providerName: "SiliconFlow",
       providerType: "siliconflow",
-      sorted: 10,
+      sorted: 9,
     },
   })),
 ] as const;

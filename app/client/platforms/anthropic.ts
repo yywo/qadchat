@@ -197,7 +197,10 @@ export class ClaudeApi implements LLMApi {
       stream: shouldStream,
 
       model: modelConfig.model,
-      max_tokens: modelConfig.max_tokens,
+      max_tokens:
+        modelConfig.max_tokens > 0
+          ? modelConfig.max_tokens
+          : (undefined as any),
       temperature: modelConfig.temperature,
       top_p: modelConfig.top_p,
       // top_k: modelConfig.top_k,

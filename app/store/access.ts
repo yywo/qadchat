@@ -31,8 +31,6 @@ export interface CustomProvider {
   endpoint?: string; // 自定义端点
   // 根据类型的特定配置
   config?: {
-    // OpenAI类型的特定配置
-    azureApiVersion?: string;
     // Google类型的特定配置
     googleSafetySettings?: GoogleSafetySettingsThreshold;
     // Anthropic类型的特定配置
@@ -75,7 +73,6 @@ const DEFAULT_ACCESS_STATE = {
   // 启用的服务提供商
   enabledProviders: {
     [ServiceProvider.OpenAI]: false,
-    [ServiceProvider.Azure]: false,
     [ServiceProvider.Google]: false,
     [ServiceProvider.Anthropic]: false,
     [ServiceProvider.ByteDance]: false,
@@ -89,7 +86,6 @@ const DEFAULT_ACCESS_STATE = {
   // 每个服务商启用的模型列表（支持自定义服务商）
   enabledModels: {
     [ServiceProvider.OpenAI]: [] as string[],
-    [ServiceProvider.Azure]: [] as string[],
     [ServiceProvider.Google]: [] as string[],
     [ServiceProvider.Anthropic]: [] as string[],
     [ServiceProvider.ByteDance]: [] as string[],
@@ -103,7 +99,6 @@ const DEFAULT_ACCESS_STATE = {
   // 是否从API获取可用模型（每个服务商独立控制）
   fetchModelsFromAPI: {
     [ServiceProvider.OpenAI]: true,
-    [ServiceProvider.Azure]: true,
     [ServiceProvider.Google]: true,
     [ServiceProvider.Anthropic]: true,
     [ServiceProvider.ByteDance]: true,
@@ -126,11 +121,6 @@ const DEFAULT_ACCESS_STATE = {
   // openai
   openaiUrl: DEFAULT_OPENAI_URL,
   openaiApiKey: "",
-
-  // azure
-  azureUrl: "",
-  azureApiKey: "",
-  azureApiVersion: "2023-08-01-preview",
 
   // google ai studio
   googleUrl: DEFAULT_GOOGLE_URL,
@@ -202,11 +192,7 @@ const DEFAULT_ACCESS_STATE = {
       hasApiKey: false,
       hasBaseUrl: false,
     },
-    azure: {
-      hasApiKey: false,
-      hasBaseUrl: false,
-      hasApiVersion: false,
-    },
+
     bytedance: {
       hasApiKey: false,
       hasBaseUrl: false,
@@ -246,11 +232,6 @@ const DEFAULT_ACCESS_STATE = {
     anthropic: {
       apiKey: "",
       baseUrl: "",
-    },
-    azure: {
-      apiKey: "",
-      baseUrl: "",
-      apiVersion: "",
     },
     bytedance: {
       apiKey: "",
@@ -296,7 +277,6 @@ export type AccessControlStore = typeof DEFAULT_ACCESS_STATE & {
   getEffectiveProviderConfig: (provider: string) => any;
   hasValidProviderConfig: (provider: string) => boolean;
   hasAnyValidProviderConfig: () => boolean;
-  isValidAzure: () => boolean;
   isValidGoogle: () => boolean;
   isValidAnthropic: () => boolean;
   isValidByteDance: () => boolean;
@@ -412,16 +392,7 @@ export const useAccessStore = createPersistStore(
             };
           }
           break;
-        case "azure":
-          if (state.azureApiKey) {
-            frontendConfig = {
-              apiKey: state.azureApiKey,
-              baseUrl: state.azureUrl || "",
-              apiVersion: state.azureApiVersion || "",
-              source: "frontend" as const,
-            };
-          }
-          break;
+
         case "bytedance":
           if (state.bytedanceApiKey) {
             frontendConfig = {
@@ -507,7 +478,6 @@ export const useAccessStore = createPersistStore(
         "openai",
         "google",
         "anthropic",
-        "azure",
         "bytedance",
         "alibaba",
         "moonshot",
@@ -518,10 +488,6 @@ export const useAccessStore = createPersistStore(
       return providers.some((provider) =>
         this.hasValidProviderConfig(provider),
       );
-    },
-
-    isValidAzure() {
-      return ensure(get(), ["azureUrl", "azureApiKey", "azureApiVersion"]);
     },
 
     isValidGoogle() {
@@ -693,7 +659,6 @@ export const useAccessStore = createPersistStore(
 
       return (
         this.isValidOpenAI() ||
-        this.isValidAzure() ||
         this.isValidGoogle() ||
         this.isValidAnthropic() ||
         this.isValidByteDance() ||
@@ -853,11 +818,9 @@ export const useAccessStore = createPersistStore(
         const state = persistedState as {
           token: string;
           openaiApiKey: string;
-          azureApiVersion: string;
           googleApiKey: string;
         };
-        state.openaiApiKey = state.token;
-        state.azureApiVersion = "2023-08-01-preview";
+        state.openaiApiKey = (state as any).token;
       }
 
       if (version < 3) {

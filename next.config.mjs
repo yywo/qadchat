@@ -74,13 +74,7 @@ if (mode !== "export") {
       //   source: "/api/proxy/v1/:path*",
       //   destination: "https://api.openai.com/v1/:path*",
       // },
-      {
-        // https://{resource_name}.openai.azure.com/openai/deployments/{deploy_name}/chat/completions
-        source:
-          "/api/proxy/azure/:resource_name/deployments/:deploy_name/:path*",
-        destination:
-          "https://:resource_name.openai.azure.com/openai/deployments/:deploy_name/:path*",
-      },
+      
       {
         source: "/api/proxy/google/:path*",
         destination: "https://generativelanguage.googleapis.com/:path*",

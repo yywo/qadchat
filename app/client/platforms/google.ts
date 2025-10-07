@@ -98,10 +98,12 @@ export class GoogleApi implements LLMApi {
       // 生成配置（仅适配 Google 支持的键）
       const generationConfig: any = {
         temperature: fullModelCfg.temperature,
-        maxOutputTokens: fullModelCfg.max_tokens,
         topP: fullModelCfg.top_p,
         topK: fullModelCfg.top_k,
       };
+      if (fullModelCfg.max_tokens > 0) {
+        generationConfig.maxOutputTokens = fullModelCfg.max_tokens;
+      }
 
       // 思考配置（仅 reasoning 模型 + Gemini 类型生效）
       const cap = getModelCapabilitiesWithCustomConfig(options.config.model);

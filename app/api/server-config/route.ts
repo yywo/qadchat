@@ -31,11 +31,6 @@ async function handle(req: NextRequest) {
         apiKey: process.env.ANTHROPIC_API_KEY || "",
         baseUrl: process.env.ANTHROPIC_BASE_URL || "",
       },
-      azure: {
-        apiKey: process.env.AZURE_API_KEY || "",
-        baseUrl: process.env.AZURE_BASE_URL || "",
-        apiVersion: process.env.AZURE_API_VERSION || "",
-      },
       bytedance: {
         apiKey: process.env.BYTEDANCE_API_KEY || "",
         baseUrl: process.env.BYTEDANCE_BASE_URL || "",

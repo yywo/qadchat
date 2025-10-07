@@ -1,5 +1,5 @@
 "use client";
-// azure and openai, using same models. so using same LLMApi.
+// DeepSeek 平台实现（OpenAI 兼容格式）
 import {
   ApiPath,
   DEEPSEEK_BASE_URL,

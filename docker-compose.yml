@@ -15,9 +15,7 @@ services:
     #   - GOOGLE_BASE_URL=https://generativelanguage.googleapis.com
     #   - ANTHROPIC_API_KEY=your-anthropic-api-key
     #   - ANTHROPIC_BASE_URL=https://api.anthropic.com
-    #   - AZURE_API_KEY=your-azure-api-key
-    #   - AZURE_BASE_URL=https://your-resource.openai.azure.com
-    #   - AZURE_API_VERSION=2024-02-01
+    
     #   - BYTEDANCE_API_KEY=your-bytedance-api-key
     #   - BYTEDANCE_BASE_URL=https://ark.cn-beijing.volces.com
     #   - ALIBABA_API_KEY=your-alibaba-api-key
