@@ -36,7 +36,7 @@ function getServerConfig() {
   const siliconflowApiKey = process.env.SILICONFLOW_API_KEY || "";
   const siliconflowBaseUrl = process.env.SILICONFLOW_BASE_URL || "";
 
-  // 如果设置了任何服务商环境变量，强制启用访问码
+  // 检测是否设置了任何服务商环境变量
   const hasProviderConfig = !!(
     openaiApiKey ||
     openaiBaseUrl ||
@@ -61,10 +61,7 @@ function getServerConfig() {
     siliconflowBaseUrl
   );
 
-  const needCode = !!accessCode || hasProviderConfig;
-
   return {
-    needCode,
     hideUserApiKey: false,
     disableGPT4: false,
     hideBalanceQuery: false,

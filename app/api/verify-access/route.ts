@@ -10,7 +10,6 @@ async function handle(req: NextRequest) {
     if (!serverAccessCode) {
       return NextResponse.json({
         valid: true,
-        needCode: false,
         message: "访问码验证已禁用",
       });
     }
@@ -20,14 +19,12 @@ async function handle(req: NextRequest) {
 
     return NextResponse.json({
       valid: isValid,
-      needCode: true,
       message: isValid ? "访问码验证成功" : "访问码错误",
     });
   } catch (error) {
     return NextResponse.json(
       {
         valid: false,
-        needCode: true,
         message: "验证请求格式错误",
       },
       { status: 400 },

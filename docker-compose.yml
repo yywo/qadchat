@@ -7,6 +7,8 @@ services:
     # environment:
     #   # 访问码配置（必需，当设置任何服务商配置时）
     #   - ACCESS_CODE=your-access-code
+    #   # WebDAV 端点白名单（可选，逗号分隔，必须为 https）
+    #   - WHITE_WEBDAV_ENDPOINTS=https://dav.example.com/dav/,https://cloud.example.com/webdav/
     #   - OPENAI_API_KEY=sk-your-openai-api-key
     #   - OPENAI_BASE_URL=https://api.openai.com
     #   - GOOGLE_API_KEY=your-google-api-key

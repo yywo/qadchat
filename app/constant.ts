@@ -790,7 +790,7 @@ export const DEFAULT_MODELS = [
 export const CHAT_PAGE_SIZE = 15;
 export const MAX_RENDER_MSG_COUNT = 45;
 
-// some famous webdav endpoints
+// some famous webdav endpoints (server-side route will merge with env allowlist)
 export const internalAllowedWebDavEndpoints = [
   "https://dav.jianguoyun.com/dav/",
   "https://dav.dropdav.com/",

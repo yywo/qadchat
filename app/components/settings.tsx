@@ -495,6 +495,11 @@ function CheckButton() {
     setCheckState("checking");
     const valid = await syncStore.check();
     setCheckState(valid ? "success" : "failed");
+    if (valid) {
+      showToast(Locale.UI.Success ?? "可用性检查通过");
+    } else {
+      showToast(Locale.Settings.Sync.Fail ?? "可用性检查失败");
+    }
   }
 
   if (!couldCheck) return null;
@@ -1492,8 +1497,8 @@ export function Settings() {
             checkingUpdate
               ? Locale.Settings.Update.IsChecking
               : hasNewVersion
-              ? Locale.Settings.Update.FoundUpdate(remoteId ?? "ERROR")
-              : Locale.Settings.Update.IsLatest
+                ? Locale.Settings.Update.FoundUpdate(remoteId ?? "ERROR")
+                : Locale.Settings.Update.IsLatest
           }
         >
           {checkingUpdate ? (
@@ -1676,45 +1681,7 @@ export function Settings() {
           ></input>
         </ListItem>
 
-        {/* 访问码配置 - 当启用访问控制时显示 */}
-        {(accessStore.enabledAccessControl() ||
-          accessStore.hasServerProviderConfig) && (
-          <ListItem
-            title={Locale.Settings.AccessCode.Title}
-            subTitle={Locale.Settings.AccessCode.SubTitle}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                alignItems: "center",
-                gap: "10px",
-              }}
-            >
-              <PasswordInput
-                value={accessStore.accessCode}
-                type="text"
-                placeholder={Locale.Settings.AccessCode.Placeholder}
-                onChange={(e) => {
-                  accessStore.update(
-                    (access) => (access.accessCode = e.currentTarget.value),
-                  );
-                }}
-                style={{ flex: 1 }}
-              />
-              <span
-                style={{
-                  fontSize: "12px",
-                  color: accessStore.accessCode ? "#4CAF50" : "#FF9800",
-                }}
-              >
-                {accessStore.accessCode
-                  ? Locale.Settings.AccessCode.Status.Valid
-                  : Locale.Settings.AccessCode.Status.Enabled}
-              </span>
-            </div>
-          </ListItem>
-        )}
+        {/* 旧的通用访问码配置项已移除，仅保留模型服务配置页的访问码输入框 */}
       </List>
       <DangerItems />
     </>
@@ -1980,8 +1947,38 @@ export function Settings() {
                   config.provider as ServiceProvider
                 ] || false;
             const isCollapsed = config.isCustom
-              ? collapsedCustomProviders[config.provider as string] ?? true // 自定义服务商默认折叠
+              ? (collapsedCustomProviders[config.provider as string] ?? true) // 自定义服务商默认折叠
               : collapsedProviders[config.provider as ServiceProvider] || false;
+
+            // 服务器环境变量是否对该服务商已配置
+            const isServerConfigured = (() => {
+              if (config.isCustom) return false;
+              const sp = accessStore.serverProviders;
+              switch (config.provider as ServiceProvider) {
+                case ServiceProvider.OpenAI:
+                  return !!sp.openai?.hasApiKey;
+                case ServiceProvider.Google:
+                  return !!sp.google?.hasApiKey;
+                case ServiceProvider.Anthropic:
+                  return !!sp.anthropic?.hasApiKey;
+                case ServiceProvider.Azure:
+                  return !!sp.azure?.hasApiKey;
+                case ServiceProvider.ByteDance:
+                  return !!sp.bytedance?.hasApiKey;
+                case ServiceProvider.Alibaba:
+                  return !!sp.alibaba?.hasApiKey;
+                case ServiceProvider.Moonshot:
+                  return !!sp.moonshot?.hasApiKey;
+                case ServiceProvider.DeepSeek:
+                  return !!sp.deepseek?.hasApiKey;
+                case ServiceProvider.XAI:
+                  return !!sp.xai?.hasApiKey;
+                case ServiceProvider.SiliconFlow:
+                  return !!sp.siliconflow?.hasApiKey;
+                default:
+                  return false;
+              }
+            })();
 
             return (
               <div
@@ -2031,6 +2028,16 @@ export function Settings() {
                         <h3 className={styles["provider-name"]}>
                           {config.name}
                         </h3>
+                        {isServerConfigured && (
+                          <span
+                            className={styles["provider-badge-server"]}
+                            title={
+                              "Server configured via environment variables"
+                            }
+                          >
+                            SERVER
+                          </span>
+                        )}
                         {isEnabled && (
                           <span className={styles["provider-badge"]}>
                             {Locale.Settings.Access.Provider.Status.Enabled}

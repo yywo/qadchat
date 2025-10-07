@@ -137,6 +137,21 @@
   animation: badge-appear 0.3s ease;
 }
 
+// 服务器侧已配置的标识（通过环境变量）
+.provider-badge-server {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: #10b981; // success green
+  color: white;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: badge-appear 0.3s ease;
+}
+
 @keyframes badge-appear {
   from {
     opacity: 0;
