@@ -3,6 +3,7 @@ import { MCPClientLogger } from "./logger";
 import { ListToolsResponse, McpRequestMessage, ServerConfig } from "./types";
 import { z } from "zod";
 import { createMCPClient } from "./transport-factory";
+import { MCP_PROTOCOL_VERSION } from "./constants";
 
 const logger = new MCPClientLogger();
 
@@ -13,7 +14,35 @@ export async function createClient(
   logger.info(`Creating client for ${id}...`);
 
   // 使用新的传输工厂创建客户端
-  return await createMCPClient(id, config);
+  const protocol = config.protocolVersion || MCP_PROTOCOL_VERSION;
+  let client = await createMCPClient(id, config, protocol);
+  // 尝试按 MCP 规范发送 initialize 握手（Streamable HTTP 端点通常要求）
+  // 优先使用 SDK 的 initialize（由传输层正确保存 mcp-session-id）
+  const initParams = {
+    protocolVersion: protocol,
+    clientInfo: { name: `nextchat-mcp-client-${id}`, version: "1.0.0" },
+    capabilities: {},
+  } as any;
+  try {
+    if (typeof (client as any).initialize === "function") {
+      await (client as any).initialize(initParams);
+    } else {
+      // 兜底：手动 JSON-RPC
+      const initReq = {
+        jsonrpc: "2.0",
+        id: Date.now(),
+        method: "initialize",
+        params: initParams,
+      } as any;
+      await (client as any).request(initReq, z.object({}).passthrough());
+    }
+    logger.info(`Client ${id} initialized (v=${initParams.protocolVersion})`);
+  } catch (e: any) {
+    // 遵循最新规范，固定使用 2025-06-18；若失败直接抛错，避免版本混乱。
+    throw e;
+  }
+
+  return client;
 }
 
 export async function removeClient(client: Client) {
