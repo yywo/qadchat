@@ -281,10 +281,7 @@ const tw = {
       SubTitle: "聊天內容的字型，若留空則套用全域預設字型",
       Placeholder: "字型名稱",
     },
-    InjectSystemPrompts: {
-      Title: "匯入系統提示",
-      SubTitle: "強制在每個請求的訊息列表開頭新增一個模擬 ChatGPT 的系統提示",
-    },
+
     InputTemplate: {
       Title: "使用者輸入預處理",
       SubTitle: "使用者最新的一則訊息會填充到此範本",
@@ -432,7 +429,7 @@ const tw = {
       },
       CustomEndpoint: {
         Title: "自訂 API 端點 (Endpoint)",
-        SubTitle: "是否使用自訂 Azure 或 OpenAI 服務",
+        SubTitle: "是否使用自訂端點",
       },
       Provider: {
         Title: "模型供應商",
@@ -453,7 +450,6 @@ const tw = {
         },
         Description: {
           OpenAI: "OpenAI GPT 系列模型",
-          Azure: "微軟 Azure OpenAI 服務",
           Google: "Google Gemini 系列模型",
           Anthropic: "Anthropic Claude 系列模型",
           ByteDance: "字節跳動豆包系列模型",
@@ -480,23 +476,7 @@ const tw = {
           SubTitle: "除預設位址外，必須包含 http(s)://",
         },
       },
-      Azure: {
-        ApiKey: {
-          Title: "API 金鑰",
-          SubTitle: "使用自訂 Azure Key 繞過密碼存取限制",
-          Placeholder: "Azure API Key",
-        },
 
-        Endpoint: {
-          Title: "API 端點 (Endpoint) 位址",
-          SubTitle: "範例：",
-        },
-
-        ApiVerion: {
-          Title: "API 版本 (azure api version)",
-          SubTitle: "指定一個特定的 API 版本",
-        },
-      },
       Anthropic: {
         ApiKey: {
           Title: "API 金鑰",
@@ -741,7 +721,8 @@ const tw = {
     },
     MaxTokens: {
       Title: "單次回應限制 (max_tokens)",
-      SubTitle: "單次互動所用的最大 Token 數",
+      SubTitle:
+        "單次請求可用的最大 Token。設為 -1 代表不限制，且請求中不會攜帶此欄位。",
     },
     PresencePenalty: {
       Title: "話題新穎度 (presence_penalty)",
@@ -794,16 +775,7 @@ const tw = {
         SubTitle: "API Key",
         Placeholder: "API Key",
       },
-      Azure: {
-        Endpoint: {
-          Title: "介面位址",
-          SubTitle: "介面位址",
-        },
-        Deployment: {
-          Title: "部署名稱",
-          SubTitle: "部署名稱",
-        },
-      },
+
       Temperature: {
         Title: "隨機性 (temperature)",
         SubTitle: "值越大，回應越隨機",

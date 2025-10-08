@@ -5,11 +5,6 @@ export function cloudflareAIGatewayUrl(fetchUrl: string) {
   const paths = fetchUrl.split("/");
   if ("gateway.ai.cloudflare.com" == paths[2]) {
     // is cloudflare.com ai gateway
-    // https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/azure-openai/{resource_name}/{deployment_name}/chat/completions?api-version=2023-05-15'
-    if ("azure-openai" == paths[6]) {
-      // is azure gateway
-      return paths.slice(0, 8).concat(paths.slice(-3)).join("/"); // rebuild ai gateway azure_url
-    }
     // https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/openai/chat/completions
     if ("openai" == paths[6]) {
       // is openai gateway

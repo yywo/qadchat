@@ -66,9 +66,6 @@ export class ModelFetcher {
         case ServiceProvider.OpenAI:
           return await this.fetchOpenAIModels(ServiceProvider.OpenAI);
 
-        case ServiceProvider.Azure:
-          return await this.fetchOpenAIModels(ServiceProvider.Azure);
-
         case ServiceProvider.Anthropic:
           return await this.fetchAnthropicModels();
 
@@ -121,7 +118,7 @@ export class ModelFetcher {
   }
 
   /**
-   * 获取OpenAI格式的模型（OpenAI、Azure、Moonshot、ByteDance等）
+   * 获取OpenAI格式的模型（OpenAI、Moonshot、ByteDance等）
    */
   private static async fetchOpenAIModels(
     provider: ServiceProvider,

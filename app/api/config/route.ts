@@ -14,10 +14,6 @@ function getServerConfig() {
   const anthropicApiKey = process.env.ANTHROPIC_API_KEY || "";
   const anthropicBaseUrl = process.env.ANTHROPIC_BASE_URL || "";
 
-  const azureApiKey = process.env.AZURE_API_KEY || "";
-  const azureBaseUrl = process.env.AZURE_BASE_URL || "";
-  const azureApiVersion = process.env.AZURE_API_VERSION || "";
-
   const bytedanceApiKey = process.env.BYTEDANCE_API_KEY || "";
   const bytedanceBaseUrl = process.env.BYTEDANCE_BASE_URL || "";
 
@@ -44,9 +40,6 @@ function getServerConfig() {
     googleBaseUrl ||
     anthropicApiKey ||
     anthropicBaseUrl ||
-    azureApiKey ||
-    azureBaseUrl ||
-    azureApiVersion ||
     bytedanceApiKey ||
     bytedanceBaseUrl ||
     alibabaApiKey ||
@@ -86,11 +79,6 @@ function getServerConfig() {
       anthropic: {
         hasApiKey: !!anthropicApiKey,
         hasBaseUrl: !!anthropicBaseUrl,
-      },
-      azure: {
-        hasApiKey: !!azureApiKey,
-        hasBaseUrl: !!azureBaseUrl,
-        hasApiVersion: !!azureApiVersion,
       },
       bytedance: {
         hasApiKey: !!bytedanceApiKey,

@@ -193,7 +193,6 @@ OpenAI는 특정 지역의 신용카드만 사용할 수 있습니다(중국 신
   그런 다음 이메일 메시지를 기다립니다.
 - ChatGPT Plus를 사용하도록 설정했다고 해서 GPT-4 권한이 있는 것은 아니며, 서로 관련이 없습니다.
 
-## Azure OpenAI 인터페이스 사용 방법
 
 참조: [#371](https://github.com/Yidadaa/ChatGPT-Next-Web/issues/371)
 

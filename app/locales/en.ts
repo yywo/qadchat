@@ -14,7 +14,7 @@ const en: LocaleType = {
      \\ 2️⃣ Want to use your own OpenAI resources? [Click here](/#/settings) to change settings ⚙️`
       : `😆 Oops, there's an issue. Let's fix it:
      \ 1️⃣ Check project documentation, [Click here to visit GitHub 🚀](${SAAS_CHAT_UTM_URL})
-     \ 2️⃣ Using a private setup? [Click here](/#/auth) to enter your key 🔑
+     \ 2️⃣ Using a private setup? Go to [Settings](/#/settings) to enter access code 🔑
      \ 3️⃣ Want to use your own OpenAI resources? [Click here](/#/settings) to change settings ⚙️
      `,
   },
@@ -289,10 +289,7 @@ const en: LocaleType = {
         "Font Family of the chat content, leave empty to apply global default font",
       Placeholder: "Font Family Name",
     },
-    InjectSystemPrompts: {
-      Title: "Inject System Prompts",
-      SubTitle: "Inject a global system prompt for every request",
-    },
+
     InputTemplate: {
       Title: "Input Template",
       SubTitle: "Newest message will be filled to this template",
@@ -423,11 +420,11 @@ const en: LocaleType = {
       },
       CustomEndpoint: {
         Title: "Custom Endpoint",
-        SubTitle: "Use custom Azure or OpenAI service",
+        SubTitle: "Use custom endpoint",
       },
       Provider: {
         Title: "Model Provider",
-        SubTitle: "Select Azure or OpenAI",
+        SubTitle: "Select provider",
         Name: {
           ByteDance: "ByteDance",
           Alibaba: "Alibaba Cloud",
@@ -444,7 +441,6 @@ const en: LocaleType = {
         },
         Description: {
           OpenAI: "OpenAI GPT Series Models",
-          Azure: "Microsoft Azure OpenAI Service",
           Google: "Google Gemini Series Models",
           Anthropic: "Anthropic Claude Series Models",
           ByteDance: "ByteDance Doubao Series Models",
@@ -471,23 +467,7 @@ const en: LocaleType = {
           SubTitle: "Must start with http(s):// or use /api/openai as default",
         },
       },
-      Azure: {
-        ApiKey: {
-          Title: "Azure Api Key",
-          SubTitle: "Check your api key from Azure console",
-          Placeholder: "Azure Api Key",
-        },
 
-        Endpoint: {
-          Title: "Azure Endpoint",
-          SubTitle: "Example: ",
-        },
-
-        ApiVerion: {
-          Title: "Azure Api Version",
-          SubTitle: "Check your api version from azure console",
-        },
-      },
       Anthropic: {
         ApiKey: {
           Title: "Anthropic API Key",
@@ -733,7 +713,8 @@ const en: LocaleType = {
     },
     MaxTokens: {
       Title: "Max Tokens",
-      SubTitle: "Maximum length of input tokens and generated tokens",
+      SubTitle:
+        "Maximum tokens per request. Set -1 for no limit and this field will not be sent in the request.",
     },
     PresencePenalty: {
       Title: "Presence Penalty",
@@ -789,16 +770,7 @@ const en: LocaleType = {
         SubTitle: "API Key",
         Placeholder: "API Key",
       },
-      Azure: {
-        Endpoint: {
-          Title: "Endpoint",
-          SubTitle: "Endpoint",
-        },
-        Deployment: {
-          Title: "Deployment Name",
-          SubTitle: "Deployment Name",
-        },
-      },
+
       Temperature: {
         Title: "Randomness (temperature)",
         SubTitle: "Higher values result in more random responses",
@@ -953,6 +925,7 @@ const en: LocaleType = {
     Import: "Import",
     Sync: "Sync",
     Config: "Config",
+    Success: "Success",
   },
   Exporter: {
     Description: {

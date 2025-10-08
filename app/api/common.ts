@@ -9,8 +9,6 @@ export async function requestOpenai(
 ) {
   const controller = new AbortController();
 
-  const isAzure = req.nextUrl.pathname.includes("azure/deployments");
-
   var authValue,
     authHeaderName = "";
 
@@ -19,19 +17,8 @@ export async function requestOpenai(
     authValue = `Bearer ${process.env.OPENAI_API_KEY || ""}`;
     authHeaderName = "Authorization";
   } else {
-    if (isAzure) {
-      authValue =
-        req.headers
-          .get("Authorization")
-          ?.trim()
-          .replaceAll("Bearer ", "")
-          .trim() ?? "";
-
-      authHeaderName = "api-key";
-    } else {
-      authValue = req.headers.get("Authorization") ?? "";
-      authHeaderName = "Authorization";
-    }
+    authValue = req.headers.get("Authorization") ?? "";
+    authHeaderName = "Authorization";
   }
 
   let path = `${req.nextUrl.pathname}`.replaceAll("/api/openai/", "");
@@ -57,16 +44,6 @@ export async function requestOpenai(
     },
     10 * 60 * 1000,
   );
-
-  if (isAzure) {
-    const azureApiVersion =
-      req?.nextUrl?.searchParams?.get("api-version") || "2024-02-01";
-    baseUrl = baseUrl.split("/deployments").shift() as string;
-    path = `${req.nextUrl.pathname.replaceAll(
-      "/api/azure/",
-      "",
-    )}?api-version=${azureApiVersion}`;
-  }
 
   const fetchUrl = cloudflareAIGatewayUrl(`${baseUrl}/${path}`);
   console.log("fetchUrl", fetchUrl);

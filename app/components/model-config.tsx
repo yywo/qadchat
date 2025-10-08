@@ -208,7 +208,7 @@ export function ModelConfigList(props: {
         <input
           aria-label={Locale.Settings.MaxTokens.Title}
           type="number"
-          min={1024}
+          min={-1}
           max={512000}
           value={props.modelConfig.max_tokens}
           onChange={(e) =>
@@ -269,24 +269,6 @@ export function ModelConfigList(props: {
           </ListItem>
 
           <ListItem
-            title={Locale.Settings.InjectSystemPrompts.Title}
-            subTitle={Locale.Settings.InjectSystemPrompts.SubTitle}
-          >
-            <input
-              aria-label={Locale.Settings.InjectSystemPrompts.Title}
-              type="checkbox"
-              checked={props.modelConfig.enableInjectSystemPrompts}
-              onChange={(e) =>
-                props.updateConfig(
-                  (config) =>
-                    (config.enableInjectSystemPrompts =
-                      e.currentTarget.checked),
-                )
-              }
-            ></input>
-          </ListItem>
-
-          <ListItem
             title={Locale.Settings.InputTemplate.Title}
             subTitle={Locale.Settings.InputTemplate.SubTitle}
           >
@@ -312,7 +294,7 @@ export function ModelConfigList(props: {
           title={props.modelConfig.historyMessageCount.toString()}
           value={props.modelConfig.historyMessageCount}
           min="0"
-          max="64"
+          max="100"
           step="1"
           onChange={(e) =>
             props.updateConfig(

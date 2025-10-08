@@ -12,7 +12,7 @@ import {
   useChatStore,
 } from "../store";
 import { ChatGPTApi, DalleRequestPayload } from "./platforms/openai";
-import { GoogleGenAIApi } from "./platforms/google-genai";
+import { GoogleApi } from "./platforms/google";
 import { ClaudeApi } from "./platforms/anthropic";
 import { DoubaoApi } from "./platforms/bytedance";
 import { QwenApi } from "./platforms/alibaba";
@@ -108,7 +108,7 @@ export abstract class LLMApi {
   abstract models(): Promise<LLMModel[]>;
 }
 
-type ProviderName = "openai" | "azure" | "claude" | "palm";
+type ProviderName = "openai" | "claude" | "palm";
 
 interface Model {
   name: string;
@@ -135,7 +135,7 @@ export class ClientApi {
   constructor(provider: ModelProvider = ModelProvider.GPT) {
     switch (provider) {
       case ModelProvider.GeminiPro:
-        this.llm = new GoogleGenAIApi();
+        this.llm = new GoogleApi();
         break;
       case ModelProvider.Claude:
         this.llm = new ClaudeApi();
@@ -245,7 +245,6 @@ export function getHeaders(
     );
 
     const isGoogle = normalizedProviderName === ServiceProvider.Google;
-    const isAzure = normalizedProviderName === ServiceProvider.Azure;
     const isAnthropic = normalizedProviderName === ServiceProvider.Anthropic;
     const isByteDance = normalizedProviderName === ServiceProvider.ByteDance;
     const isAlibaba = normalizedProviderName === ServiceProvider.Alibaba;
@@ -269,28 +268,25 @@ export function getHeaders(
       isCustomProvider && customProvider
         ? customProvider.apiKey
         : isGoogle
-        ? accessStore.googleApiKey
-        : isAzure
-        ? accessStore.azureApiKey
-        : isAnthropic
-        ? accessStore.anthropicApiKey
-        : isByteDance
-        ? accessStore.bytedanceApiKey
-        : isAlibaba
-        ? accessStore.alibabaApiKey
-        : isMoonshot
-        ? accessStore.moonshotApiKey
-        : isXAI
-        ? accessStore.xaiApiKey
-        : isDeepSeek
-        ? accessStore.deepseekApiKey
-        : isSiliconFlow
-        ? accessStore.siliconflowApiKey
-        : accessStore.openaiApiKey;
+          ? accessStore.googleApiKey
+          : isAnthropic
+            ? accessStore.anthropicApiKey
+            : isByteDance
+              ? accessStore.bytedanceApiKey
+              : isAlibaba
+                ? accessStore.alibabaApiKey
+                : isMoonshot
+                  ? accessStore.moonshotApiKey
+                  : isXAI
+                    ? accessStore.xaiApiKey
+                    : isDeepSeek
+                      ? accessStore.deepseekApiKey
+                      : isSiliconFlow
+                        ? accessStore.siliconflowApiKey
+                        : accessStore.openaiApiKey;
 
     return {
       isGoogle,
-      isAzure,
       isAnthropic,
       isByteDance,
       isAlibaba,
@@ -306,18 +302,15 @@ export function getHeaders(
   }
 
   function getAuthHeader(): string {
-    return isAzure
-      ? "api-key"
-      : isAnthropic
+    return isAnthropic
       ? "x-api-key"
       : isGoogle
-      ? "x-goog-api-key"
-      : "Authorization";
+        ? "x-goog-api-key"
+        : "Authorization";
   }
 
   const {
     isGoogle,
-    isAzure,
     isAnthropic,
     isByteDance,
     isAlibaba,
@@ -333,10 +326,7 @@ export function getHeaders(
 
   const authHeader = getAuthHeader();
 
-  const bearerToken = getBearerToken(
-    apiKey,
-    isAzure || isAnthropic || isGoogle,
-  );
+  const bearerToken = getBearerToken(apiKey, isAnthropic || isGoogle);
 
   if (bearerToken) {
     headers[authHeader] = bearerToken;
@@ -425,7 +415,6 @@ export function normalizeProviderName(provider: string): ServiceProvider {
   // 创建一个映射表，将provider.id映射到ServiceProvider枚举值
   const providerIdMap: Record<string, ServiceProvider> = {
     openai: ServiceProvider.OpenAI,
-    azure: ServiceProvider.Azure,
     google: ServiceProvider.Google,
     anthropic: ServiceProvider.Anthropic,
     bytedance: ServiceProvider.ByteDance,

@@ -2,7 +2,6 @@ import React from "react";
 import { ServiceProvider } from "../constant";
 import {
   OpenAI,
-  Azure,
   DeepSeek,
   SiliconCloud,
   Grok,
@@ -102,10 +101,7 @@ function getModelIconType(
   if (lowerModelName.includes("grok")) return "default"; // Grok 暂时使用默认图标
 
   // 服务商特定模型判断 - 作为后备
-  if (
-    provider === ServiceProvider.OpenAI ||
-    provider === ServiceProvider.Azure
-  ) {
+  if (provider === ServiceProvider.OpenAI) {
     if (
       lowerModelName.includes("o1") ||
       lowerModelName.includes("o3") ||
@@ -248,10 +244,6 @@ export function ProviderIcon({
         case ServiceProvider.OpenAI:
           // OpenAI 默认显示彩色背景 + 白色线条的 Avatar
           return <OpenAI.Avatar {...iconProps} style={{ color: "#ffffff" }} />;
-
-        case ServiceProvider.Azure:
-          // Azure 提供的是 OpenAI 模型，显示 Azure 彩色图标
-          return <Azure.Color {...iconProps} />;
 
         case ServiceProvider.Google:
           // Google 主要提供 Gemini 模型，显示 Gemini 彩色图标

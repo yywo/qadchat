@@ -193,7 +193,6 @@ OpenAI 只接受指定地区的信用卡（中国信用卡无法使用）。一�
   之后等待邮件消息。
 - 开通 ChatGPT Plus 不代表有 GPT-4 权限，两者毫无关系。
 
-## 如何使用 Azure OpenAI 接口
 
 请参考：[#371](https://github.com/Yidadaa/ChatGPT-Next-Web/issues/371)
 

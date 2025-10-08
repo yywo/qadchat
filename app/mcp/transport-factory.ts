@@ -3,6 +3,7 @@ import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { MCPClientLogger } from "./logger";
 import { ServerConfig } from "./types";
+import { MCP_PROTOCOL_VERSION, MCP_VERSION_HEADER_KEYS } from "./constants";
 
 const logger = new MCPClientLogger("Transport Factory");
 
@@ -19,15 +20,24 @@ export class TransportFactory {
   static async createTransport(
     id: string,
     config: ServerConfig,
+    protocolVersion: string = MCP_PROTOCOL_VERSION,
   ): Promise<MCPTransport> {
     logger.info(`Creating ${config.type} transport for ${id}...`);
 
     switch (config.type) {
       case "sse":
-        return this.createSSETransport(id, config);
+        return this.createSSETransport(
+          id,
+          config,
+          config.protocolVersion || protocolVersion,
+        );
 
       case "streamableHttp":
-        return this.createStreamableHTTPTransport(id, config);
+        return this.createStreamableHTTPTransport(
+          id,
+          config,
+          config.protocolVersion || protocolVersion,
+        );
 
       default:
         throw new Error(
@@ -42,6 +52,7 @@ export class TransportFactory {
   private static createSSETransport(
     id: string,
     config: ServerConfig,
+    protocolVersion: string,
   ): SSEClientTransport {
     if (!config.baseUrl) {
       throw new Error(`Base URL is required for SSE transport`);
@@ -55,6 +66,9 @@ export class TransportFactory {
           let headers: Record<string, string> = {
             Accept: "text/event-stream",
             "Cache-Control": "no-cache",
+            ...Object.fromEntries(
+              MCP_VERSION_HEADER_KEYS.map((k) => [k, protocolVersion]),
+            ),
             ...(config.headers || {}),
           };
 
@@ -110,6 +124,9 @@ export class TransportFactory {
       requestInit: {
         headers: {
           "Content-Type": "application/json",
+          ...Object.fromEntries(
+            MCP_VERSION_HEADER_KEYS.map((k) => [k, protocolVersion]),
+          ),
           ...(config.headers || {}),
         },
       },
@@ -124,6 +141,7 @@ export class TransportFactory {
   private static createStreamableHTTPTransport(
     _id: string,
     config: ServerConfig,
+    protocolVersion: string,
   ): StreamableHTTPClientTransport {
     if (!config.baseUrl) {
       throw new Error(`Base URL is required for StreamableHTTP transport`);
@@ -133,23 +151,60 @@ export class TransportFactory {
       `Creating StreamableHTTP transport with URL: ${config.baseUrl}`,
     );
 
+    const defaultAccept = "application/json, text/event-stream";
     let headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      Accept: "application/json",
+      "Content-Type": "application/json; charset=utf-8",
+      // Streamable HTTP 要求客户端同时能接受 json 与 event-stream
+      Accept: config.postAccept || defaultAccept,
+      // 在 HTTP 层也带上协议版本（覆盖常见命名）
+      ...Object.fromEntries(
+        MCP_VERSION_HEADER_KEYS.map((k) => [k, protocolVersion]),
+      ),
       ...(config.headers || {}),
     };
+
+    // 在浏览器端：若目标为跨域，则通过同源代理避免 CORS
+    let effectiveUrl = config.baseUrl;
+    try {
+      // @ts-ignore
+      const origin = typeof location !== "undefined" ? location.origin : "";
+      const tgt = new URL(config.baseUrl, origin);
+      if (origin && tgt.origin !== origin) {
+        const forward: Record<string, string> = {
+          "Content-Type": "application/json; charset=utf-8",
+          Accept: config.postAccept || defaultAccept,
+          ...Object.fromEntries(
+            MCP_VERSION_HEADER_KEYS.map((k) => [k, protocolVersion]),
+          ),
+          ...(config.headers || {}),
+        };
+        // base64 编码 JSON 头部，供代理转发使用
+        // @ts-ignore
+        const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(forward))));
+        effectiveUrl = `/api/mcp-proxy?target=${encodeURIComponent(tgt.toString())}`;
+        headers = {
+          // 发送到代理的自有头部（由代理再转发到上游）
+          "x-proxy-forward-headers": b64,
+          // 其他头部由代理注入，无需在此携带 Authorization 等到同源端
+        } as Record<string, string>;
+      }
+    } catch (e) {}
 
     const options = {
       requestInit: {
         headers,
-        // 添加超时支持
         signal: AbortSignal.timeout((config.timeout || 30) * 1000),
       },
     };
 
-    // Headers are configured above
-
-    return new StreamableHTTPClientTransport(new URL(config.baseUrl), options);
+    const base =
+      typeof location !== "undefined"
+        ? location.origin
+        : "http://localhost:3000";
+    return new StreamableHTTPClientTransport(
+      new URL(effectiveUrl, base),
+      options,
+    );
   }
 
   /**
@@ -181,12 +236,17 @@ export class TransportFactory {
 export async function createMCPClient(
   id: string,
   config: ServerConfig,
+  protocolVersion: string = MCP_PROTOCOL_VERSION,
 ): Promise<Client> {
   // 验证配置
   TransportFactory.validateConfig(config);
 
   // 创建SSE传输
-  const transport = await TransportFactory.createTransport(id, config);
+  const transport = await TransportFactory.createTransport(
+    id,
+    config,
+    protocolVersion,
+  );
 
   // 创建客户端
   const client = new Client(
@@ -202,7 +262,8 @@ export async function createMCPClient(
   // 连接传输
   await client.connect(transport);
 
-  logger.success(`Client ${id} connected successfully using SSE transport`);
+  const transportName = (transport as any)?.constructor?.name || "transport";
+  logger.success(`Client ${id} connected successfully using ${transportName}`);
 
   return client;
 }

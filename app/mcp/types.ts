@@ -121,6 +121,10 @@ export interface ServerConfig {
   baseUrl: string;
   headers?: Record<string, string>;
   timeout?: number; // 超时时间（秒）
+  // 可选：覆盖协议版本（默认使用最新规范 2025-06-18）
+  protocolVersion?: string;
+  // 可选：POST 请求的 Accept 值（有些服务端严格要求仅 application/json）
+  postAccept?: string;
 
   // 认证配置（预留）
   // authProvider?: AuthConfig;

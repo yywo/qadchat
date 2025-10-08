@@ -13,7 +13,7 @@ const cn = {
        \\ 2️⃣ 如果你想消耗自己的 OpenAI 资源，点击[这里](/#/settings)修改设置 ⚙️`
       : `😆 对话遇到了一些问题，不用慌:
        \ 1️⃣ 查看项目文档，[点击这里访问 GitHub 🚀](${SAAS_CHAT_UTM_URL})
-       \ 2️⃣ 如果你正在使用私有部署版本，点击[这里](/#/auth)输入访问秘钥 🔑
+       \ 2️⃣ 如果你正在使用私有部署版本，请前往[设置页](/#/settings)输入访问码 🔑
        \ 3️⃣ 如果你想消耗自己的 OpenAI 资源，点击[这里](/#/settings)修改设置 ⚙️
        `,
   },
@@ -281,10 +281,6 @@ const cn = {
       SubTitle: "聊天内容的字体，若置空则应用全局默认字体",
       Placeholder: "字体名称",
     },
-    InjectSystemPrompts: {
-      Title: "注入系统级提示信息",
-      SubTitle: "强制给每次请求的消息列表开头添加一个模拟 ChatGPT 的系统提示",
-    },
     InputTemplate: {
       Title: "用户输入预处理",
       SubTitle: "用户最新的一条消息会填充到此模板",
@@ -412,7 +408,7 @@ const cn = {
       },
       CustomEndpoint: {
         Title: "自定义接口",
-        SubTitle: "是否使用自定义 Azure 或 OpenAI 服务",
+        SubTitle: "是否使用自定义接口",
       },
       Provider: {
         Title: "模型服务商",
@@ -433,7 +429,6 @@ const cn = {
         },
         Description: {
           OpenAI: "OpenAI GPT 系列模型",
-          Azure: "微软 Azure OpenAI 服务",
           Google: "Google Gemini 系列模型",
           Anthropic: "Anthropic Claude 系列模型",
           ByteDance: "字节跳动豆包系列模型",
@@ -460,23 +455,7 @@ const cn = {
           SubTitle: "除默认地址外，必须包含 http(s)://",
         },
       },
-      Azure: {
-        ApiKey: {
-          Title: "接口密钥",
-          SubTitle: "使用自定义 Azure Key 绕过密码访问限制",
-          Placeholder: "Azure API Key",
-        },
 
-        Endpoint: {
-          Title: "接口地址",
-          SubTitle: "样例：",
-        },
-
-        ApiVerion: {
-          Title: "接口版本 (azure api version)",
-          SubTitle: "选择指定的部分版本",
-        },
-      },
       Anthropic: {
         ApiKey: {
           Title: "接口密钥",
@@ -721,7 +700,8 @@ const cn = {
     },
     MaxTokens: {
       Title: "单次回复限制 (max_tokens)",
-      SubTitle: "单次交互所用的最大 Token 数",
+      SubTitle:
+        "单次交互所用的最大 Token 数。设置为 -1 表示不限制，并且不会在请求中传输该字段。",
     },
     PresencePenalty: {
       Title: "话题新鲜度 (presence_penalty)",
@@ -774,16 +754,7 @@ const cn = {
         SubTitle: "API Key",
         Placeholder: "API Key",
       },
-      Azure: {
-        Endpoint: {
-          Title: "接口地址",
-          SubTitle: "接口地址",
-        },
-        Deployment: {
-          Title: "部署名称",
-          SubTitle: "部署名称",
-        },
-      },
+
       Temperature: {
         Title: "随机性 (temperature)",
         SubTitle: "值越大，回复越随机",
@@ -940,6 +911,7 @@ const cn = {
     Import: "导入",
     Sync: "同步",
     Config: "配置",
+    Success: "操作成功",
   },
   Exporter: {
     Description: {

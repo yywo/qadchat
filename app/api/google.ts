@@ -85,17 +85,20 @@ async function request(
     },
     10 * 60 * 1000,
   );
-  const fetchUrl = `${baseUrl}${path}${
-    req?.nextUrl?.searchParams?.get("alt") === "sse" ? "?alt=sse" : ""
-  }`;
+
+  const url = new URL(`${baseUrl}${path}`);
+  req.nextUrl.searchParams.forEach((v, k) => url.searchParams.set(k, v));
+  if (req?.nextUrl?.searchParams?.get("alt") === "sse") {
+    url.searchParams.set("alt", "sse");
+  }
+  const fetchUrl = url.toString();
 
   const fetchOptions: RequestInit = {
     headers: {
       "Content-Type": "application/json",
       "Cache-Control": "no-store",
-      "x-goog-api-key":
-        req.headers.get("x-goog-api-key") ||
-        (req.headers.get("Authorization") ?? "").replace("Bearer ", ""),
+      // 统一使用解析后的 apiKey（当使用服务器配置时来自环境变量，否则来自用户请求）
+      "x-goog-api-key": apiKey || "",
     },
     method: req.method,
     body: req.body,

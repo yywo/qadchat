@@ -171,7 +171,6 @@ OpenAI solo acepta tarjetas de crédito en regiones seleccionadas (no se pueden 
     Espere el mensaje de correo después.
 *   Habilitar ChatGPT Plus no significa permisos GPT-4, y los dos no tienen nada que ver entre sí.
 
-## Uso de la interfaz de Azure OpenAI
 
 Por favor consulte:[#371](https://github.com/Yidadaa/ChatGPT-Next-Web/issues/371)
 

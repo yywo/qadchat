@@ -1,5 +1,5 @@
 "use client";
-// azure and openai, using same models. so using same LLMApi.
+// xAI 平台实现（OpenAI 兼容格式）
 import { ApiPath, XAI_BASE_URL, XAI } from "@/app/constant";
 import {
   useAccessStore,
@@ -77,14 +77,16 @@ export class XAIApi implements LLMApi {
     };
 
     // XAI 不支持 presence_penalty 和 frequency_penalty 参数，只保留支持的参数
-    const requestPayload = {
+    const requestPayload: any = {
       messages,
       stream: options.config.stream,
       model: modelConfig.model,
       temperature: modelConfig.temperature,
       top_p: modelConfig.top_p,
-      max_tokens: modelConfig.max_tokens,
     };
+    if (modelConfig.max_tokens > 0) {
+      requestPayload.max_tokens = modelConfig.max_tokens;
+    }
 
     console.log("[Request] xai payload: ", requestPayload);
 
